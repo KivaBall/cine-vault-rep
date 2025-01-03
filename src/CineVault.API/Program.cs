@@ -1,7 +1,3 @@
-using CineVault.API.Extensions;
-using Microsoft.AspNetCore.Mvc;
-[assembly: ApiController]
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCineVaultDbContext(builder.Configuration);

@@ -1,10 +1,4 @@
-﻿using CineVault.API.Controllers.Requests;
-using CineVault.API.Controllers.Responses;
-using CineVault.API.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace CineVault.API.Controllers;
+﻿namespace CineVault.API.Controllers;
 
 [Route("api/[controller]/[action]")]
 public sealed class MoviesController : ControllerBase

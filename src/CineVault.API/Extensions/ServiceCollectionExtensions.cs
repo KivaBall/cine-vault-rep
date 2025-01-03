@@ -1,11 +1,9 @@
-﻿using CineVault.API.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace CineVault.API.Extensions;
+﻿namespace CineVault.API.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCineVaultDbContext(this IServiceCollection services,
+    public static IServiceCollection AddCineVaultDbContext(
+        this IServiceCollection services,
         IConfiguration configuration)
     {
         services.AddDbContext<CineVaultDbContext>(options =>
