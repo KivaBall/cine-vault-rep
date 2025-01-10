@@ -6,14 +6,7 @@ public class AppInfoController(IHostEnvironment environment) : ControllerBase
     [HttpGet]
     public ActionResult<string> Environment()
     {
-        var environment = configuration["ASPNETCORE_ENVIRONMENT"];
-
-        if (environment == null)
-        {
-            throw new Exception("Something went wrong?");
-        }
-            
-        return Ok($"Current environment => {environment}");
+        return Ok($"Current environment => {environment.EnvironmentName}");
     }
 
     [HttpGet]
