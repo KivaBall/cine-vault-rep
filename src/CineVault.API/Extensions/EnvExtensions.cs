@@ -2,7 +2,7 @@ namespace CineVault.API.Extensions;
 
 public static class EnvExtensions
 {
-    public static bool IsLocal(this IConfiguration configuration)
+    public static bool IsLocal(this IHostEnvironment environment)
     {
         var environment = configuration["ASPNETCORE_ENVIRONMENT"];
         

@@ -18,7 +18,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if (app.Configuration.IsLocal())
+if (app.Environment.IsLocal())
 {
     app.UseDeveloperExceptionPage();
 }
