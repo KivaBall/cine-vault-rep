@@ -3,17 +3,17 @@
 [Route("api/[controller]/[action]")]
 public sealed class MoviesController : ControllerBase
 {
-    private readonly CineVaultDbContext dbContext;
+    private readonly CineVaultDbContext _dbContext;
 
     public MoviesController(CineVaultDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        _dbContext = dbContext;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<MovieResponse>>> GetMovies()
     {
-        var movies = await this.dbContext.Movies
+        var movies = await _dbContext.Movies
             .Include(m => m.Reviews)
             .Select(m => new MovieResponse
             {
@@ -30,19 +30,19 @@ public sealed class MoviesController : ControllerBase
             })
             .ToListAsync();
 
-        return base.Ok(movies);
+        return Ok(movies);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
     {
-        var movie = await this.dbContext.Movies
+        var movie = await _dbContext.Movies
             .Include(m => m.Reviews)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
         var response = new MovieResponse
@@ -59,7 +59,7 @@ public sealed class MoviesController : ControllerBase
             ReviewCount = movie.Reviews.Count
         };
 
-        return base.Ok(response);
+        return Ok(response);
     }
 
     [HttpPost]
@@ -74,20 +74,20 @@ public sealed class MoviesController : ControllerBase
             Director = request.Director
         };
 
-        await this.dbContext.Movies.AddAsync(movie);
-        await this.dbContext.SaveChangesAsync();
+        await _dbContext.Movies.AddAsync(movie);
+        await _dbContext.SaveChangesAsync();
 
-        return base.Created();
+        return Created();
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
     {
-        var movie = await this.dbContext.Movies.FindAsync(id);
+        var movie = await _dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
         movie.Title = request.Title;
@@ -96,24 +96,24 @@ public sealed class MoviesController : ControllerBase
         movie.Genre = request.Genre;
         movie.Director = request.Director;
 
-        await this.dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
 
-        return base.Ok();
+        return Ok();
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMovie(int id)
     {
-        var movie = await this.dbContext.Movies.FindAsync(id);
+        var movie = await _dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
-        this.dbContext.Movies.Remove(movie);
-        await this.dbContext.SaveChangesAsync();
+        _dbContext.Movies.Remove(movie);
+        await _dbContext.SaveChangesAsync();
 
-        return base.Ok();
+        return Ok();
     }
 }

@@ -1,7 +1,7 @@
 namespace CineVault.API.Controllers;
 
 [Route("api/[action]")]
-public class AppInfoController(IHostEnvironment environment) : ControllerBase
+public sealed class AppInfoController(IHostEnvironment environment) : ControllerBase
 {
     [HttpGet]
     public ActionResult<string> Environment()
@@ -13,6 +13,5 @@ public class AppInfoController(IHostEnvironment environment) : ControllerBase
     public ActionResult<string> Exception()
     {
         throw new NotImplementedException("Test exception for Developer Exception Page");
-
     }
 }

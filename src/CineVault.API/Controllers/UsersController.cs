@@ -1,19 +1,19 @@
 ﻿namespace CineVault.API.Controllers;
 
 [Route("api/[controller]/[action]")]
-public class UsersController : ControllerBase
+public sealed class UsersController : ControllerBase
 {
-    private readonly CineVaultDbContext dbContext;
+    private readonly CineVaultDbContext _dbContext;
 
     public UsersController(CineVaultDbContext dbContext)
     {
-        this.dbContext = dbContext;
+        _dbContext = dbContext;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
-        var users = await this.dbContext.Users
+        var users = await _dbContext.Users
             .Select(u => new UserResponse
             {
                 Id = u.Id,
@@ -22,17 +22,17 @@ public class UsersController : ControllerBase
             })
             .ToListAsync();
 
-        return base.Ok(users);
+        return Ok(users);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUserById(int id)
     {
-        var user = await this.dbContext.Users.FindAsync(id);
+        var user = await _dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
         var response = new UserResponse
@@ -42,7 +42,7 @@ public class UsersController : ControllerBase
             Email = user.Email
         };
 
-        return base.Ok(response);
+        return Ok(response);
     }
 
     [HttpPost]
@@ -55,44 +55,44 @@ public class UsersController : ControllerBase
             Password = request.Password
         };
 
-        this.dbContext.Users.Add(user);
-        await this.dbContext.SaveChangesAsync();
+        _dbContext.Users.Add(user);
+        await _dbContext.SaveChangesAsync();
 
-        return base.Ok();
+        return Ok();
     }
 
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateUser(int id, UserRequest request)
     {
-        var user = await this.dbContext.Users.FindAsync(id);
+        var user = await _dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
         user.Username = request.Username;
         user.Email = request.Email;
         user.Password = request.Password;
 
-        await this.dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
 
-        return base.Ok();
+        return Ok();
     }
 
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {
-        var user = await this.dbContext.Users.FindAsync(id);
+        var user = await _dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
-            return base.NotFound();
+            return NotFound();
         }
 
-        this.dbContext.Users.Remove(user);
-        await this.dbContext.SaveChangesAsync();
+        _dbContext.Users.Remove(user);
+        await _dbContext.SaveChangesAsync();
 
-        return base.Ok();
+        return Ok();
     }
 }

@@ -8,7 +8,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<CineVaultDbContext>(options =>
         {
-            string? connectionString = configuration.GetConnectionString("CineVaultDb");
+            var connectionString = configuration.GetConnectionString("CineVaultDb");
 
             if (string.IsNullOrEmpty(connectionString))
             {
