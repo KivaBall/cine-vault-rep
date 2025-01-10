@@ -1,14 +1,14 @@
-using CineVault.API.Extensions;
-using Microsoft.AspNetCore.Mvc;
-[assembly: ApiController]
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCineVaultDbContext(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSwaggerGen();
+}
 
 var app = builder.Build();
 
@@ -18,10 +18,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+if (app.Environment.IsLocal())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
+
+Console.WriteLine($"Current environment is {app.Environment.EnvironmentName}");
 
 await app.RunAsync();
