@@ -12,6 +12,7 @@ public class AppInfoController(IHostEnvironment environment) : ControllerBase
     [HttpGet]
     public ActionResult<string> Exception()
     {
-        throw new Exception("Hello world!");
+        throw new NotImplementedException("Test exception for Developer Exception Page");
+
     }
 }
