@@ -1,7 +1,6 @@
 ﻿namespace CineVault.API.Controllers;
 
-[Route("api/[controller]/[action]")]
-public sealed class MoviesController : ControllerBase
+public sealed class MoviesController : BaseController
 {
     private readonly CineVaultDbContext _dbContext;
 
