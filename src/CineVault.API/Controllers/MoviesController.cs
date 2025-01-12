@@ -73,6 +73,7 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     }
 
     [HttpPut("{id}")]
+    [MapToApiVersion(2)]
     public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
     {
         var movie = await dbContext.Movies.FindAsync(id);

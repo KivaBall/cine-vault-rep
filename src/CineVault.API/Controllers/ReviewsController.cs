@@ -70,6 +70,7 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
     }
 
     [HttpPut("{id}")]
+    [MapToApiVersion(2)]
     public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
     {
         var review = await dbContext.Reviews.FindAsync(id);

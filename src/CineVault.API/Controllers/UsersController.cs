@@ -54,6 +54,7 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     }
 
     [HttpPut("{id}")]
+    [MapToApiVersion(2)]
     public async Task<ActionResult> UpdateUser(int id, UserRequest request)
     {
         var user = await dbContext.Users.FindAsync(id);
