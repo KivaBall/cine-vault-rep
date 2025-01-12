@@ -2,15 +2,45 @@ namespace CineVault.API.Controllers;
 
 public sealed class AppInfoController(IHostEnvironment environment) : BaseController
 {
-    [HttpGet]
-    public ActionResult<string> Environment()
+    [HttpGet("environment")]
+    [MapToApiVersion(1)]
+    public ActionResult<string> EnvironmentV1()
     {
         return Ok($"Current environment => {environment.EnvironmentName}");
     }
 
-    [HttpGet]
+    [HttpGet("environment")]
+    [MapToApiVersion(2)]
+    public ActionResult<string> EnvironmentV2()
+    {
+        return Ok($"""
+                   - - - 
+                   Current environment => {environment.EnvironmentName}
+                   - - -
+                   In application => {environment.ApplicationName}
+                   - - -
+                   Is development: {environment.IsDevelopment()}
+                   - - -
+                   Is production: {environment.IsProduction()}
+                   """);
+    }
+
+    [HttpGet("exception")]
     public ActionResult<string> Exception()
     {
         throw new NotImplementedException("Test exception for Developer Exception Page");
+    }
+
+    [HttpGet("yahoo")]
+    [MapToApiVersion(2)]
+    public ActionResult<string> Yahoo()
+    {
+        return Ok($"""
+                   Yahoo
+                         ooooooo
+                                 ooooo!
+                                 
+                   ~ ~ I am a new endpoint supported only in v2! ~ ~
+                   """);
     }
 }
