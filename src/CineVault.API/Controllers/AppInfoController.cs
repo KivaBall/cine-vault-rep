@@ -1,7 +1,6 @@
 namespace CineVault.API.Controllers;
 
-[Route("api/[action]")]
-public sealed class AppInfoController(IHostEnvironment environment) : ControllerBase
+public sealed class AppInfoController(IHostEnvironment environment) : BaseController
 {
     [HttpGet]
     public ActionResult<string> Environment()
