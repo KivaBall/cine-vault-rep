@@ -5,6 +5,8 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
     [HttpGet]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
+        logger.Information("Serilog | Getting users...");
+
         var users = await dbContext.Users
             .Select(u => new UserResponse
             {
@@ -53,6 +55,8 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
 
         dbContext.Users.Add(user);
 
+        logger.Information("Serilog | Creating user...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -76,6 +80,8 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
         user.Email = request.Email;
         user.Password = request.Password;
 
+        logger.Information("Serilog | Updating user...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -96,6 +102,8 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
         }
 
         dbContext.Users.Remove(user);
+
+        logger.Information("Serilog | Deleting user...");
 
         await dbContext.SaveChangesAsync();
 

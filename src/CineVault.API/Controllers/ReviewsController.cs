@@ -5,6 +5,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
     [HttpGet]
     public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
     {
+        logger.Information("Serilog | Getting reviews...");
+
         var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
@@ -69,6 +71,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
 
         dbContext.Reviews.Add(review);
 
+        logger.Information("Serilog | Creating review...");
+
         await dbContext.SaveChangesAsync();
 
         return Created();
@@ -93,6 +97,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
         review.Rating = request.Rating;
         review.Comment = request.Comment;
 
+        logger.Information("Serilog | Updating review...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -113,6 +119,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
         }
 
         dbContext.Reviews.Remove(review);
+
+        logger.Information("Serilog | Deleting review...");
 
         await dbContext.SaveChangesAsync();
 

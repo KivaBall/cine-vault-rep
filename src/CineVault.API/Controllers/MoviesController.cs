@@ -5,6 +5,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
     [HttpGet]
     public async Task<ActionResult<List<MovieResponse>>> GetMovies()
     {
+        logger.Information("Serilog | Getting movies...");
+
         var movies = await dbContext.Movies
             .Include(m => m.Reviews)
             .Select(m => new MovieResponse
@@ -72,6 +74,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
 
         dbContext.Movies.Add(movie);
 
+        logger.Information("Serilog | Adding movie...");
+
         await dbContext.SaveChangesAsync();
 
         return Created();
@@ -97,6 +101,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
         movie.Genre = request.Genre;
         movie.Director = request.Director;
 
+        logger.Information("Serilog | Updating movie...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -117,6 +123,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
         }
 
         dbContext.Movies.Remove(movie);
+
+        logger.Information("Serilog | Deleting movie...");
 
         await dbContext.SaveChangesAsync();
 
