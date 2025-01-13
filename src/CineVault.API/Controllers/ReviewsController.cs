@@ -1,18 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class ReviewsController : BaseController
+public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logger) : BaseController
 {
-    private readonly CineVaultDbContext _dbContext;
-
-    public ReviewsController(CineVaultDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
     {
-        var reviews = await _dbContext.Reviews
+        var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
             .Select(r => new ReviewResponse
@@ -34,13 +27,17 @@ public sealed class ReviewsController : BaseController
     [HttpGet("{id}")]
     public async Task<ActionResult<ReviewResponse>> GetReviewById(int id)
     {
-        var review = await _dbContext.Reviews
+        logger.Information("Serilog | Getting review with ID {Id}...", id);
+
+        var review = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
             .FirstOrDefaultAsync(review => review.Id == id);
 
         if (review is null)
         {
+            logger.Warning("Serilog | Review with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -70,8 +67,9 @@ public sealed class ReviewsController : BaseController
             Comment = request.Comment
         };
 
-        _dbContext.Reviews.Add(review);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Reviews.Add(review);
+
+        await dbContext.SaveChangesAsync();
 
         return Created();
     }
@@ -79,10 +77,14 @@ public sealed class ReviewsController : BaseController
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
     {
-        var review = await _dbContext.Reviews.FindAsync(id);
+        logger.Information("Serilog | Getting review with ID {Id}...", id);
+
+        var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
+            logger.Warning("Serilog | Review with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -91,7 +93,7 @@ public sealed class ReviewsController : BaseController
         review.Rating = request.Rating;
         review.Comment = request.Comment;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -99,15 +101,20 @@ public sealed class ReviewsController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteReview(int id)
     {
-        var review = await _dbContext.Reviews.FindAsync(id);
+        logger.Information("Serilog | Getting review with ID {Id}...", id);
+
+        var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
+            logger.Warning("Serilog | Review with ID {Id} not found", id);
+
             return NotFound();
         }
 
-        _dbContext.Reviews.Remove(review);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Reviews.Remove(review);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }

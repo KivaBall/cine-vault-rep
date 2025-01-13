@@ -1,18 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class UsersController : BaseController
+public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger) : BaseController
 {
-    private readonly CineVaultDbContext _dbContext;
-
-    public UsersController(CineVaultDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
-        var users = await _dbContext.Users
+        var users = await dbContext.Users
             .Select(u => new UserResponse
             {
                 Id = u.Id,
@@ -27,10 +20,14 @@ public sealed class UsersController : BaseController
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUserById(int id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -54,8 +51,9 @@ public sealed class UsersController : BaseController
             Password = request.Password
         };
 
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Users.Add(user);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -63,10 +61,14 @@ public sealed class UsersController : BaseController
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateUser(int id, UserRequest request)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -74,7 +76,7 @@ public sealed class UsersController : BaseController
         user.Email = request.Email;
         user.Password = request.Password;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -82,15 +84,20 @@ public sealed class UsersController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound();
         }
 
-        _dbContext.Users.Remove(user);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Users.Remove(user);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }

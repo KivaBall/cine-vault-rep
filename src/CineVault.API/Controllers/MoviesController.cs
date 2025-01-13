@@ -1,18 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class MoviesController : BaseController
+public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logger) : BaseController
 {
-    private readonly CineVaultDbContext _dbContext;
-
-    public MoviesController(CineVaultDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<MovieResponse>>> GetMovies()
     {
-        var movies = await _dbContext.Movies
+        var movies = await dbContext.Movies
             .Include(m => m.Reviews)
             .Select(m => new MovieResponse
             {
@@ -35,12 +28,16 @@ public sealed class MoviesController : BaseController
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
     {
-        var movie = await _dbContext.Movies
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
+        var movie = await dbContext.Movies
             .Include(m => m.Reviews)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -73,8 +70,9 @@ public sealed class MoviesController : BaseController
             Director = request.Director
         };
 
-        await _dbContext.Movies.AddAsync(movie);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Movies.Add(movie);
+
+        await dbContext.SaveChangesAsync();
 
         return Created();
     }
@@ -82,10 +80,14 @@ public sealed class MoviesController : BaseController
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
     {
-        var movie = await _dbContext.Movies.FindAsync(id);
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
+        var movie = await dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -95,7 +97,7 @@ public sealed class MoviesController : BaseController
         movie.Genre = request.Genre;
         movie.Director = request.Director;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -103,15 +105,20 @@ public sealed class MoviesController : BaseController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMovie(int id)
     {
-        var movie = await _dbContext.Movies.FindAsync(id);
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
+        var movie = await dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
-        _dbContext.Movies.Remove(movie);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Movies.Remove(movie);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
