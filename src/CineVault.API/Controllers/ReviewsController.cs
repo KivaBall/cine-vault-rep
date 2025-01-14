@@ -1,19 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-[Route("api/[controller]/[action]")]
-public sealed class ReviewsController : ControllerBase
+public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseController
 {
-    private readonly CineVaultDbContext _dbContext;
-
-    public ReviewsController(CineVaultDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
     {
-        var reviews = await _dbContext.Reviews
+        var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
             .Select(r => new ReviewResponse
@@ -35,7 +27,7 @@ public sealed class ReviewsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ReviewResponse>> GetReviewById(int id)
     {
-        var review = await _dbContext.Reviews
+        var review = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
             .FirstOrDefaultAsync(review => review.Id == id);
@@ -71,8 +63,9 @@ public sealed class ReviewsController : ControllerBase
             Comment = request.Comment
         };
 
-        _dbContext.Reviews.Add(review);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Reviews.Add(review);
+
+        await dbContext.SaveChangesAsync();
 
         return Created();
     }
@@ -80,7 +73,7 @@ public sealed class ReviewsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
     {
-        var review = await _dbContext.Reviews.FindAsync(id);
+        var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
@@ -92,7 +85,7 @@ public sealed class ReviewsController : ControllerBase
         review.Rating = request.Rating;
         review.Comment = request.Comment;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -100,15 +93,16 @@ public sealed class ReviewsController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteReview(int id)
     {
-        var review = await _dbContext.Reviews.FindAsync(id);
+        var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
             return NotFound();
         }
 
-        _dbContext.Reviews.Remove(review);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Reviews.Remove(review);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }

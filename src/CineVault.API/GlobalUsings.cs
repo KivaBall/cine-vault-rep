@@ -1,3 +1,4 @@
+global using CineVault.API.Abstractions;
 global using CineVault.API.Controllers.Requests;
 global using CineVault.API.Controllers.Responses;
 global using CineVault.API.Entities;

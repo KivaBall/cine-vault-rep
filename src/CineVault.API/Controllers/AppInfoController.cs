@@ -1,15 +1,14 @@
 namespace CineVault.API.Controllers;
 
-[Route("api/[action]")]
-public sealed class AppInfoController(IHostEnvironment environment) : ControllerBase
+public sealed class AppInfoController(IHostEnvironment environment) : BaseController
 {
-    [HttpGet]
+    [HttpGet("environment")]
     public ActionResult<string> Environment()
     {
         return Ok($"Current environment => {environment.EnvironmentName}");
     }
 
-    [HttpGet]
+    [HttpGet("exception")]
     public ActionResult<string> Exception()
     {
         throw new NotImplementedException("Test exception for Developer Exception Page");
