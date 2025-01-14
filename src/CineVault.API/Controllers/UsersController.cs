@@ -48,6 +48,7 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
         };
 
         dbContext.Users.Add(user);
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -84,6 +85,7 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
         }
 
         dbContext.Users.Remove(user);
+
         await dbContext.SaveChangesAsync();
 
         return Ok();

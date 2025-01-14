@@ -66,7 +66,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
             Director = request.Director
         };
 
-        await dbContext.Movies.AddAsync(movie);
+        dbContext.Movies.Add(movie);
+
         await dbContext.SaveChangesAsync();
 
         return Created();
@@ -105,6 +106,7 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
         }
 
         dbContext.Movies.Remove(movie);
+
         await dbContext.SaveChangesAsync();
 
         return Ok();

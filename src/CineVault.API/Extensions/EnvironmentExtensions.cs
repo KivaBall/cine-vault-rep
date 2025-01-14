@@ -1,6 +1,6 @@
 namespace CineVault.API.Extensions;
 
-public static class EnvExtensions
+public static class EnvironmentExtensions
 {
     public static bool IsLocal(this IHostEnvironment environment)
     {

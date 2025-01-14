@@ -64,6 +64,7 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
         };
 
         dbContext.Reviews.Add(review);
+
         await dbContext.SaveChangesAsync();
 
         return Created();
@@ -101,6 +102,7 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
         }
 
         dbContext.Reviews.Remove(review);
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
