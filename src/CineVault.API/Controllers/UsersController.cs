@@ -1,19 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-[Route("api/[controller]/[action]")]
-public sealed class UsersController : ControllerBase
+public sealed class UsersController(CineVaultDbContext dbContext) : BaseController
 {
-    private readonly CineVaultDbContext _dbContext;
-
-    public UsersController(CineVaultDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
-        var users = await _dbContext.Users
+        var users = await dbContext.Users
             .Select(u => new UserResponse
             {
                 Id = u.Id,
@@ -28,7 +20,7 @@ public sealed class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponse>> GetUserById(int id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
@@ -55,8 +47,9 @@ public sealed class UsersController : ControllerBase
             Password = request.Password
         };
 
-        _dbContext.Users.Add(user);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Users.Add(user);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -64,7 +57,7 @@ public sealed class UsersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateUser(int id, UserRequest request)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
@@ -75,7 +68,7 @@ public sealed class UsersController : ControllerBase
         user.Email = request.Email;
         user.Password = request.Password;
 
-        await _dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
@@ -83,15 +76,16 @@ public sealed class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {
-        var user = await _dbContext.Users.FindAsync(id);
+        var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
             return NotFound();
         }
 
-        _dbContext.Users.Remove(user);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Users.Remove(user);
+
+        await dbContext.SaveChangesAsync();
 
         return Ok();
     }
