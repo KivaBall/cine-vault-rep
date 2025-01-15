@@ -8,6 +8,6 @@ public sealed class ReviewResponse
     public required int UserId { get; set; }
     public required string Username { get; set; }
     public required int Rating { get; set; }
-    public string? Comment { get; set; }
+    public required string? Comment { get; set; }
     public required DateTime CreatedAt { get; set; }
 }

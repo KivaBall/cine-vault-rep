@@ -3,8 +3,8 @@
 public sealed class MovieRequest
 {
     public required string Title { get; init; }
-    public string? Description { get; init; }
-    public DateOnly? ReleaseDate { get; init; }
-    public string? Genre { get; init; }
-    public string? Director { get; init; }
+    public required string? Description { get; init; }
+    public required DateOnly? ReleaseDate { get; init; }
+    public required string? Genre { get; init; }
+    public required string? Director { get; init; }
 }
