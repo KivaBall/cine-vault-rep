@@ -25,8 +25,13 @@ public static class PipelineExtensions
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-
-            app.UseSwaggerUI();
+            
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("v1/swagger.json", "CineVault 'Gray' API V1");
+                
+                opt.SwaggerEndpoint("v2/swagger.json", "CineVault 'KitKat' API V2");
+            });
         }
     }
 }
