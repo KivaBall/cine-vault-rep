@@ -1,17 +1,15 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class UsersController(CineVaultDbContext dbContext) : BaseController
+public sealed class UsersController(
+    CineVaultDbContext dbContext,
+    IMapper mapper)
+    : BaseController
 {
     [HttpGet]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
         var users = await dbContext.Users
-            .Select(u => new UserResponse
-            {
-                Id = u.Id,
-                Username = u.Username,
-                Email = u.Email
-            })
+            .Select(u => mapper.Map<UserResponse>(u))
             .ToListAsync();
 
         return Ok(users);
@@ -27,12 +25,7 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
             return NotFound();
         }
 
-        var response = new UserResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        };
+        var response = mapper.Map<UserResponse>(user);
 
         return Ok(response);
     }
@@ -40,12 +33,7 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     [HttpPost]
     public async Task<ActionResult> CreateUser(UserRequest request)
     {
-        var user = new User
-        {
-            Username = request.Username,
-            Email = request.Email,
-            Password = request.Password
-        };
+        var user = mapper.Map<User>(request);
 
         dbContext.Users.Add(user);
 
