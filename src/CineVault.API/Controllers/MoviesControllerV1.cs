@@ -1,9 +1,10 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class MoviesController(CineVaultDbContext dbContext) : BaseController
+public sealed partial class MoviesController(CineVaultDbContext dbContext) : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<MovieResponse>>> GetMovies()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<MovieResponse>>> GetMoviesV1()
     {
         var movies = await dbContext.Movies
             .Include(m => m.Reviews)
@@ -26,7 +27,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<MovieResponse>> GetMovieByIdV1(int id)
     {
         var movie = await dbContext.Movies
             .Include(m => m.Reviews)
@@ -55,7 +57,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateMovie(MovieRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateMovieV1(MovieRequest request)
     {
         var movie = new Movie
         {
@@ -74,7 +77,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateMovieV1(int id, MovieRequest request)
     {
         var movie = await dbContext.Movies.FindAsync(id);
 
@@ -95,7 +99,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteMovie(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteMovieV1(int id)
     {
         var movie = await dbContext.Movies.FindAsync(id);
 

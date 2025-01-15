@@ -1,9 +1,10 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseController
+public sealed partial class ReviewsController
 {
     [HttpGet]
-    public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<List<ReviewResponse>>>> GetReviewsV2()
     {
         var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
@@ -21,11 +22,12 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
             })
             .ToListAsync();
 
-        return Ok(reviews);
+        return Ok(BaseResponse.Ok(reviews, "Reviews retrieved successfully"));
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ReviewResponse>> GetReviewById(int id)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ReviewResponse>>> GetReviewByIdV2(int id)
     {
         var review = await dbContext.Reviews
             .Include(r => r.Movie)
@@ -34,7 +36,7 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
 
         if (review is null)
         {
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
         var response = new ReviewResponse
@@ -49,11 +51,12 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
             CreatedAt = review.CreatedAt
         };
 
-        return Ok(response);
+        return Ok(BaseResponse.Ok(response, "Review by ID retrieved successfully"));
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateReview(ReviewRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> CreateReviewV2(ReviewRequest request)
     {
         var review = new Review
         {
@@ -67,17 +70,18 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
 
         await dbContext.SaveChangesAsync();
 
-        return Created();
+        return Ok(BaseResponse.Created("Review was created successfully"));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id, ReviewRequest request)
     {
         var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
         review.MovieId = request.MovieId;
@@ -87,23 +91,24 @@ public sealed class ReviewsController(CineVaultDbContext dbContext) : BaseContro
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("Review by ID was updated successfully"));
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteReview(int id)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> DeleteReviewV2(int id)
     {
         var review = await dbContext.Reviews.FindAsync(id);
 
         if (review is null)
         {
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
         dbContext.Reviews.Remove(review);
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));
     }
 }

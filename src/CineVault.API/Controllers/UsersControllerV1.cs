@@ -1,9 +1,10 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class UsersController(CineVaultDbContext dbContext) : BaseController
+public sealed partial class UsersController(CineVaultDbContext dbContext) : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetUsers()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<UserResponse>>> GetUsersV1()
     {
         var users = await dbContext.Users
             .Select(u => new UserResponse
@@ -18,7 +19,8 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetUserById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<UserResponse>> GetUserByIdV1(int id)
     {
         var user = await dbContext.Users.FindAsync(id);
 
@@ -38,7 +40,8 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateUser(UserRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateUserV1(UserRequest request)
     {
         var user = new User
         {
@@ -55,7 +58,8 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUser(int id, UserRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateUserV1(int id, UserRequest request)
     {
         var user = await dbContext.Users.FindAsync(id);
 
@@ -74,7 +78,8 @@ public sealed class UsersController(CineVaultDbContext dbContext) : BaseControll
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteUserV1(int id)
     {
         var user = await dbContext.Users.FindAsync(id);
 
