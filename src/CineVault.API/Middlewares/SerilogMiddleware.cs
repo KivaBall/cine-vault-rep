@@ -6,7 +6,26 @@ public sealed class SerilogMiddleware(ILogger logger) : IMiddleware
     {
         try
         {
-            logger.Information("Serilog | Handling request: {Path}", context.Request.Path);
+            var endpoint = context.GetEndpoint();
+
+            string? controllerName = null;
+            string? actionName = null;
+
+            if (endpoint != null)
+            {
+                var controllerActionDescriptor =
+                    endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+
+                if (controllerActionDescriptor != null)
+                {
+                    controllerName = controllerActionDescriptor.ControllerName;
+                    actionName = controllerActionDescriptor.ActionName;
+                }
+            }
+
+            logger.Information(
+                "Serilog | Handling request: {Path} for controller {ControllerName} with method {Method}",
+                context.Request.Path, controllerName ?? "UNKNOWN", actionName ?? "UNKNOWN");
 
             var stopwatch = Stopwatch.StartNew();
 
