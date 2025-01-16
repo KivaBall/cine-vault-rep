@@ -6,6 +6,7 @@ global using CineVault.API.Entities;
 global using CineVault.API.Extensions;
 global using CineVault.API.Middlewares;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.EntityFrameworkCore;
 global using Serilog;
 global using Serilog.Events;
