@@ -5,7 +5,7 @@ public class BaseResponse
     public required int StatusCode { get; set; }
     public required bool Success { get; set; }
     public required string Message { get; set; }
-    public DateTime ResponseDate { get; set; } = DateTime.UtcNow;
+    public DateTime ResponseDate { get; } = DateTime.UtcNow;
     public Dictionary<string, string> Meta { get; set; } = new Dictionary<string, string>();
 
     public static BaseResponse Ok(string message)
