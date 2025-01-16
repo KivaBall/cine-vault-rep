@@ -41,13 +41,13 @@ public sealed partial class UsersController
 
     [HttpPost]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> CreateUserV2(UserRequest request)
+    public async Task<ActionResult<BaseResponse>> CreateUserV2(BaseRequest<UserRequest> request)
     {
         var user = new User
         {
-            Username = request.Username,
-            Email = request.Email,
-            Password = request.Password
+            Username = request.Data.Username,
+            Email = request.Data.Email,
+            Password = request.Data.Password
         };
 
         dbContext.Users.Add(user);
@@ -59,7 +59,8 @@ public sealed partial class UsersController
 
     [HttpPut("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id, UserRequest request)
+    public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id,
+        BaseRequest<UserRequest> request)
     {
         var user = await dbContext.Users.FindAsync(id);
 
@@ -68,9 +69,9 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        user.Username = request.Username;
-        user.Email = request.Email;
-        user.Password = request.Password;
+        user.Username = request.Data.Username;
+        user.Email = request.Data.Email;
+        user.Password = request.Data.Password;
 
         await dbContext.SaveChangesAsync();
 

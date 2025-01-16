@@ -56,14 +56,14 @@ public sealed partial class ReviewsController
 
     [HttpPost]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> CreateReviewV2(ReviewRequest request)
+    public async Task<ActionResult<BaseResponse>> CreateReviewV2(BaseRequest<ReviewRequest> request)
     {
         var review = new Review
         {
-            MovieId = request.MovieId,
-            UserId = request.UserId,
-            Rating = request.Rating,
-            Comment = request.Comment
+            MovieId = request.Data.MovieId,
+            UserId = request.Data.UserId,
+            Rating = request.Data.Rating,
+            Comment = request.Data.Comment
         };
 
         dbContext.Reviews.Add(review);
@@ -75,7 +75,8 @@ public sealed partial class ReviewsController
 
     [HttpPut("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id, ReviewRequest request)
+    public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id,
+        BaseRequest<ReviewRequest> request)
     {
         var review = await dbContext.Reviews.FindAsync(id);
 
@@ -84,10 +85,10 @@ public sealed partial class ReviewsController
             return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
-        review.MovieId = request.MovieId;
-        review.UserId = request.UserId;
-        review.Rating = request.Rating;
-        review.Comment = request.Comment;
+        review.MovieId = request.Data.MovieId;
+        review.UserId = request.Data.UserId;
+        review.Rating = request.Data.Rating;
+        review.Comment = request.Data.Comment;
 
         await dbContext.SaveChangesAsync();
 
