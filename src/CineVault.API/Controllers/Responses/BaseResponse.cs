@@ -17,7 +17,7 @@ public class BaseResponse
             Message = message
         };
     }
-    
+
     public static BaseResponse Ok<T>(T data, string message)
     {
         return new BaseResponse<T>
@@ -28,7 +28,7 @@ public class BaseResponse
             Message = message
         };
     }
-    
+
     public static BaseResponse Created(string message)
     {
         return new BaseResponse

@@ -35,21 +35,19 @@ public sealed class AppInfoController(IHostEnvironment environment) : BaseContro
     [MapToApiVersion(1)]
     public ActionResult<string> Old()
     {
-        return Ok($"""
-                   ☠ I am an old endpoint for only v1 ☠
-                   """);
+        return Ok("""☠ I am an old endpoint for only v1 ☠""");
     }
-    
+
     [HttpGet("yahoo")]
     [MapToApiVersion(2)]
     public ActionResult<string> Yahoo()
     {
-        return Ok($"""
-                   Yahoo
-                         ooooooo
-                                 ooooo!
-                                 
-                   ~ ~ I am a new endpoint supported only in v2! ~ ~
-                   """);
+        return Ok("""
+                  Yahoo
+                        ooooooo
+                                ooooo!
+                                
+                  ~ ~ I am a new endpoint supported only in v2! ~ ~
+                  """);
     }
 }
