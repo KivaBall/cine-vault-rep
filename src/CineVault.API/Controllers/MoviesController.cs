@@ -1,10 +1,12 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class MoviesController(CineVaultDbContext dbContext) : BaseController
+public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logger) : BaseController
 {
     [HttpGet]
     public async Task<ActionResult<List<MovieResponse>>> GetMovies()
     {
+        logger.Information("Serilog | Getting movies...");
+
         var movies = await dbContext.Movies
             .Include(m => m.Reviews)
             .Select(m => new MovieResponse
@@ -28,12 +30,16 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     [HttpGet("{id}")]
     public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
     {
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
         var movie = await dbContext.Movies
             .Include(m => m.Reviews)
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -68,6 +74,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
 
         dbContext.Movies.Add(movie);
 
+        logger.Information("Serilog | Adding movie...");
+
         await dbContext.SaveChangesAsync();
 
         return Created();
@@ -76,10 +84,14 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
     {
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
         var movie = await dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
@@ -89,6 +101,8 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
         movie.Genre = request.Genre;
         movie.Director = request.Director;
 
+        logger.Information("Serilog | Updating movie...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -97,14 +111,20 @@ public sealed class MoviesController(CineVaultDbContext dbContext) : BaseControl
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMovie(int id)
     {
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
         var movie = await dbContext.Movies.FindAsync(id);
 
         if (movie is null)
         {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
             return NotFound();
         }
 
         dbContext.Movies.Remove(movie);
+
+        logger.Information("Serilog | Deleting movie...");
 
         await dbContext.SaveChangesAsync();
 
