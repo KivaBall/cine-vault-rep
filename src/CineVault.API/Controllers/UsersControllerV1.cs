@@ -1,6 +1,7 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed partial class UsersController(CineVaultDbContext dbContext, ILogger logger) : BaseController
+public sealed partial class UsersController(CineVaultDbContext dbContext, ILogger logger)
+    : BaseController
 {
     [HttpGet]
     [MapToApiVersion(1)]
