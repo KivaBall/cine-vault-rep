@@ -1,6 +1,9 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed partial class UsersController(CineVaultDbContext dbContext, ILogger logger)
+public sealed partial class UsersController(
+    CineVaultDbContext dbContext,
+    ILogger logger,
+    IMapper mapper)
     : BaseController
 {
     [HttpGet]
@@ -10,12 +13,7 @@ public sealed partial class UsersController(CineVaultDbContext dbContext, ILogge
         logger.Information("Serilog | Getting users...");
 
         var users = await dbContext.Users
-            .Select(u => new UserResponse
-            {
-                Id = u.Id,
-                Username = u.Username,
-                Email = u.Email
-            })
+            .Select(u => mapper.Map<UserResponse>(u))
             .ToListAsync();
 
         return Ok(users);
@@ -36,12 +34,7 @@ public sealed partial class UsersController(CineVaultDbContext dbContext, ILogge
             return NotFound();
         }
 
-        var response = new UserResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        };
+        var response = mapper.Map<UserResponse>(user);
 
         return Ok(response);
     }
@@ -50,12 +43,7 @@ public sealed partial class UsersController(CineVaultDbContext dbContext, ILogge
     [MapToApiVersion(1)]
     public async Task<ActionResult> CreateUserV1(UserRequest request)
     {
-        var user = new User
-        {
-            Username = request.Username,
-            Email = request.Email,
-            Password = request.Password
-        };
+        var user = mapper.Map<User>(request);
 
         dbContext.Users.Add(user);
 

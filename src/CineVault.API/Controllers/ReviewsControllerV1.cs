@@ -1,6 +1,9 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed partial class ReviewsController(CineVaultDbContext dbContext, ILogger logger)
+public sealed partial class ReviewsController(
+    CineVaultDbContext dbContext,
+    ILogger logger,
+    IMapper mapper)
     : BaseController
 {
     [HttpGet]
@@ -12,17 +15,7 @@ public sealed partial class ReviewsController(CineVaultDbContext dbContext, ILog
         var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
-            .Select(r => new ReviewResponse
-            {
-                Id = r.Id,
-                MovieId = r.MovieId,
-                MovieTitle = r.Movie!.Title,
-                UserId = r.UserId,
-                Username = r.User!.Username,
-                Rating = r.Rating,
-                Comment = r.Comment,
-                CreatedAt = r.CreatedAt
-            })
+            .Select(r => mapper.Map<ReviewResponse>(r))
             .ToListAsync();
 
         return Ok(reviews);
@@ -46,17 +39,7 @@ public sealed partial class ReviewsController(CineVaultDbContext dbContext, ILog
             return NotFound();
         }
 
-        var response = new ReviewResponse
-        {
-            Id = review.Id,
-            MovieId = review.MovieId,
-            MovieTitle = review.Movie!.Title,
-            UserId = review.UserId,
-            Username = review.User!.Username,
-            Rating = review.Rating,
-            Comment = review.Comment,
-            CreatedAt = review.CreatedAt
-        };
+        var response = mapper.Map<ReviewResponse>(review);
 
         return Ok(response);
     }
@@ -65,13 +48,7 @@ public sealed partial class ReviewsController(CineVaultDbContext dbContext, ILog
     [MapToApiVersion(1)]
     public async Task<ActionResult> CreateReviewV1(ReviewRequest request)
     {
-        var review = new Review
-        {
-            MovieId = request.MovieId,
-            UserId = request.UserId,
-            Rating = request.Rating,
-            Comment = request.Comment
-        };
+        var review = mapper.Map<Review>(request);
 
         dbContext.Reviews.Add(review);
 
