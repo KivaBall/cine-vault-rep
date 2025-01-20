@@ -6,6 +6,8 @@ public sealed partial class UsersController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2()
     {
+        logger.Information("Serilog | Getting users...");
+
         var users = await dbContext.Users
             .Select(u => new UserResponse
             {
@@ -22,10 +24,14 @@ public sealed partial class UsersController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(int id)
     {
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
         var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
@@ -52,6 +58,8 @@ public sealed partial class UsersController
 
         dbContext.Users.Add(user);
 
+        logger.Information("Serilog | Creating user...");
+
         await dbContext.SaveChangesAsync();
 
         return Ok(BaseResponse.Ok("User was created successfully"));
@@ -62,16 +70,22 @@ public sealed partial class UsersController
     public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id,
         BaseRequest<UserRequest> request)
     {
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
         var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
         user.Username = request.Data.Username;
         user.Email = request.Data.Email;
         user.Password = request.Data.Password;
+
+        logger.Information("Serilog | Updating user...");
 
         await dbContext.SaveChangesAsync();
 
@@ -82,14 +96,20 @@ public sealed partial class UsersController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> DeleteUserV2(int id)
     {
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
         var user = await dbContext.Users.FindAsync(id);
 
         if (user is null)
         {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
         dbContext.Users.Remove(user);
+
+        logger.Information("Serilog | Deleting user...");
 
         await dbContext.SaveChangesAsync();
 
