@@ -41,12 +41,7 @@ public sealed partial class UsersController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> CreateUserV2(BaseRequest<UserRequest> request)
     {
-        var user = new User
-        {
-            Username = request.Data.Username,
-            Email = request.Data.Email,
-            Password = request.Data.Password
-        };
+        var user = mapper.Map<User>(request);
 
         dbContext.Users.Add(user);
 

@@ -46,13 +46,7 @@ public sealed partial class ReviewsController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> CreateReviewV2(BaseRequest<ReviewRequest> request)
     {
-        var review = new Review
-        {
-            MovieId = request.Data.MovieId,
-            UserId = request.Data.UserId,
-            Rating = request.Data.Rating,
-            Comment = request.Data.Comment
-        };
+        var review = mapper.Map<Review>(request);
 
         dbContext.Reviews.Add(review);
 

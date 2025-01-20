@@ -44,14 +44,7 @@ public sealed partial class MoviesController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> CreateMovieV2(BaseRequest<MovieRequest> request)
     {
-        var movie = new Movie
-        {
-            Title = request.Data.Title,
-            Description = request.Data.Description,
-            ReleaseDate = request.Data.ReleaseDate,
-            Genre = request.Data.Genre,
-            Director = request.Data.Director
-        };
+        var movie = mapper.Map<Movie>(request);
 
         dbContext.Movies.Add(movie);
 
