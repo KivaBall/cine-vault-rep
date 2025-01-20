@@ -11,19 +11,7 @@ public sealed partial class MoviesController
 
         var movies = await dbContext.Movies
             .Include(m => m.Reviews)
-            .Select(m => new MovieResponse
-            {
-                Id = m.Id,
-                Title = m.Title,
-                Description = m.Description,
-                ReleaseDate = m.ReleaseDate,
-                Genre = m.Genre,
-                Director = m.Director,
-                AverageRating = m.Reviews.Count != 0
-                    ? m.Reviews.Average(r => r.Rating)
-                    : 0,
-                ReviewCount = m.Reviews.Count
-            })
+            .Select(m => mapper.Map<MovieResponse>(m))
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
@@ -47,19 +35,7 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        var movieResponse = new MovieResponse
-        {
-            Id = movie.Id,
-            Title = movie.Title,
-            Description = movie.Description,
-            ReleaseDate = movie.ReleaseDate,
-            Genre = movie.Genre,
-            Director = movie.Director,
-            AverageRating = movie.Reviews.Count != 0
-                ? movie.Reviews.Average(r => r.Rating)
-                : 0,
-            ReviewCount = movie.Reviews.Count
-        };
+        var movieResponse = mapper.Map<MovieResponse>(movie);
 
         return Ok(BaseResponse.Ok(movieResponse, "Movie by ID retrieved successfully"));
     }

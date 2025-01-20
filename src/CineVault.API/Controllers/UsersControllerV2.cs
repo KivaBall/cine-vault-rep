@@ -10,12 +10,7 @@ public sealed partial class UsersController
         logger.Information("Serilog | Getting users...");
 
         var users = await dbContext.Users
-            .Select(u => new UserResponse
-            {
-                Id = u.Id,
-                Username = u.Username,
-                Email = u.Email
-            })
+            .Select(u => mapper.Map<UserResponse>(u))
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(users, "Users retrieved successfully"));
@@ -37,12 +32,7 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        var response = new UserResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        };
+        var response = mapper.Map<UserResponse>(user);
 
         return Ok(BaseResponse.Ok(response, "User by ID retrieved successfully"));
     }
