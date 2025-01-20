@@ -15,6 +15,8 @@ public static class PipelineExtensions
 
         app.UseAuthorization();
 
+        app.UseMiddleware<SerilogMiddleware>();
+
         app.MapControllers();
 
         Console.WriteLine($"Current environment is {app.Environment.EnvironmentName}");
