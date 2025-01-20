@@ -1,6 +1,6 @@
 namespace CineVault.API.Controllers;
 
-public sealed class AppInfoController(IHostEnvironment environment) : BaseController
+public sealed class AppInfoController(IHostEnvironment environment, ILogger logger) : BaseController
 {
     [HttpGet("environment")]
     [MapToApiVersion(1)]
@@ -29,6 +29,24 @@ public sealed class AppInfoController(IHostEnvironment environment) : BaseContro
     public ActionResult<string> Exception()
     {
         throw new NotImplementedException("Test exception for Developer Exception Page");
+    }
+
+    [HttpGet("logging_test")]
+    public ActionResult<string> LoggingTest()
+    {
+        logger.Verbose("Verbose test");
+
+        logger.Debug("Debug test");
+
+        logger.Information("Information test");
+
+        logger.Warning("Warning test");
+
+        logger.Error("Error test");
+
+        logger.Fatal("Fatal test");
+
+        return Ok("Logger was tested");
     }
 
     [HttpGet("old")]

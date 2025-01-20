@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Extensions;
+namespace CineVault.API.Extensions;
 
 public static class ServicesExtensions
 {
@@ -10,6 +10,8 @@ public static class ServicesExtensions
         services.AddVersioning();
 
         services.AddEndpoints();
+
+        services.AddLoggingWithSerilog(configuration);
 
         services.AddSwagger(environment);
     }
@@ -56,7 +58,38 @@ public static class ServicesExtensions
         services.AddEndpointsApiExplorer();
     }
 
-    private static void AddSwagger(this IServiceCollection services, IHostEnvironment environment)
+    private static void AddLoggingWithSerilog(this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        var logLevelStr = configuration["Logging:LogLevel:Default"];
+
+        if (logLevelStr == null)
+        {
+            throw new InvalidOperationException("Logging level is not configured");
+        }
+
+        var isLogLevel = Enum.TryParse<LogEventLevel>(logLevelStr, out var logLevel);
+
+        if (!isLogLevel)
+        {
+            throw new InvalidOperationException("Logging level is not correct");
+        }
+
+        services.AddSerilog(config =>
+        {
+            config
+                .MinimumLevel.Is(logLevel)
+                .WriteTo.Console()
+                .WriteTo.File("logging.txt",
+                    outputTemplate:
+                    "{Timestamp:dd}.{Timestamp:MM}, {Timestamp:HH:mm:ss} => {Level:u3} | {Message:lj}{NewLine}");
+        });
+
+        services.AddScoped<SerilogMiddleware>();
+    }
+
+    private static void AddSwagger(this IServiceCollection services,
+        IHostEnvironment environment)
     {
         if (environment.IsDevelopment())
         {
