@@ -2,9 +2,10 @@
 
 public sealed partial class UsersController
 {
-    [HttpGet]
+    [HttpPost("all")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2()
+    public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2(
+        BaseRequest request)
     {
         logger.Information("Serilog | Getting users...");
 
@@ -20,9 +21,10 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(users, "Users retrieved successfully"));
     }
 
-    [HttpGet("{id}")]
+    [HttpPost("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(int id)
+    public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(BaseRequest request,
+        int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -94,7 +96,7 @@ public sealed partial class UsersController
 
     [HttpDelete("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> DeleteUserV2(int id)
+    public async Task<ActionResult<BaseResponse>> DeleteUserV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 

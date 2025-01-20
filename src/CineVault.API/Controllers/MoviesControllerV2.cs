@@ -2,9 +2,10 @@
 
 public sealed partial class MoviesController
 {
-    [HttpGet]
+    [HttpPost("all")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<List<MovieResponse>>>> GetMoviesV2()
+    public async Task<ActionResult<BaseResponse<List<MovieResponse>>>> GetMoviesV2(
+        BaseRequest request)
     {
         logger.Information("Serilog | Getting movies...");
 
@@ -28,9 +29,10 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
-    [HttpGet("{id}")]
+    [HttpPost("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(int id)
+    public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(BaseRequest request,
+        int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -115,7 +117,7 @@ public sealed partial class MoviesController
 
     [HttpDelete("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> DeleteMovieV2(int id)
+    public async Task<ActionResult<BaseResponse>> DeleteMovieV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 

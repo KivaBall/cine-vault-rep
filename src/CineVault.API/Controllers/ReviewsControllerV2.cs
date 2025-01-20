@@ -2,9 +2,10 @@
 
 public sealed partial class ReviewsController
 {
-    [HttpGet]
+    [HttpPost("all")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<List<ReviewResponse>>>> GetReviewsV2()
+    public async Task<ActionResult<BaseResponse<List<ReviewResponse>>>> GetReviewsV2(
+        BaseRequest request)
     {
         logger.Information("Serilog | Getting reviews...");
 
@@ -27,9 +28,10 @@ public sealed partial class ReviewsController
         return Ok(BaseResponse.Ok(reviews, "Reviews retrieved successfully"));
     }
 
-    [HttpGet("{id}")]
+    [HttpPost("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<ReviewResponse>>> GetReviewByIdV2(int id)
+    public async Task<ActionResult<BaseResponse<ReviewResponse>>> GetReviewByIdV2(
+        BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
@@ -111,7 +113,7 @@ public sealed partial class ReviewsController
 
     [HttpDelete("{id}")]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> DeleteReviewV2(int id)
+    public async Task<ActionResult<BaseResponse>> DeleteReviewV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
