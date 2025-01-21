@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Controllers;
+﻿namespace CineVault.API.Controllers.Reviews;
 
 public sealed partial class ReviewsController
 {
@@ -44,8 +44,31 @@ public sealed partial class ReviewsController
 
     [HttpPost]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> CreateReviewV2(BaseRequest<ReviewRequest> request)
+    public async Task<ActionResult<BaseResponse<int>>> CreateReviewV2(
+        BaseRequest<ReviewRequest> request)
     {
+        if (request.Data.Rating < 1 || request.Data.Rating > 10)
+        {
+            logger.Warning(
+                "Serilog | Review has rating out of range - {Rating}",
+                request.Data.Rating);
+
+            return NotFound(BaseResponse.BadRequest("Review rating is not in correct span"));
+        }
+
+        var hypotheticReview = await dbContext.Reviews
+            .Where(r => r.MovieId == request.Data.MovieId)
+            .Where(r => r.UserId == request.Data.UserId)
+            .FirstOrDefaultAsync();
+
+        if (hypotheticReview is not null)
+        {
+            logger.Warning("Serilog | Review for such User and Movie IDs has been existed");
+
+            return BadRequest(BaseResponse.BadRequest(
+                "Review for such User and Movie IDs has been existed"));
+        }
+
         var review = mapper.Map<Review>(request);
 
         dbContext.Reviews.Add(review);
@@ -54,7 +77,7 @@ public sealed partial class ReviewsController
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(BaseResponse.Created("Review was created successfully"));
+        return Ok(BaseResponse.Created(review.Id, "Review was created successfully"));
     }
 
     [HttpPut("{id}")]
@@ -62,6 +85,16 @@ public sealed partial class ReviewsController
     public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id,
         BaseRequest<ReviewRequest> request)
     {
+        if (request.Data.Rating < 1 || request.Data.Rating > 10)
+        {
+            logger.Warning(
+                "Serilog | Review with ID {Id} has rating out of range - {Rating}",
+                id,
+                request.Data.Rating);
+
+            return NotFound(BaseResponse.BadRequest("Review rating is not in correct span"));
+        }
+
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
         var review = await dbContext.Reviews.FindAsync(id);

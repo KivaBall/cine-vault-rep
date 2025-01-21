@@ -1,11 +1,14 @@
-﻿namespace CineVault.API.Controllers;
+﻿namespace CineVault.API.Controllers.Users;
 
-public sealed partial class UsersController
+public sealed partial class UsersController(
+    CineVaultDbContext dbContext,
+    ILogger logger,
+    IMapper mapper)
+    : BaseController
 {
-    [HttpPost("all")]
-    [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2(
-        BaseRequest request)
+    [HttpGet]
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<UserResponse>>> GetUsersV1()
     {
         logger.Information("Serilog | Getting users...");
 
@@ -13,13 +16,12 @@ public sealed partial class UsersController
             .Select(u => mapper.Map<UserResponse>(u))
             .ToListAsync();
 
-        return Ok(BaseResponse.Ok(users, "Users retrieved successfully"));
+        return Ok(users);
     }
 
-    [HttpPost("{id}")]
-    [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(BaseRequest request,
-        int id)
+    [HttpGet("{id}")]
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<UserResponse>> GetUserByIdV1(int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -29,17 +31,17 @@ public sealed partial class UsersController
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound(BaseResponse.NotFound("User by ID was not found"));
+            return NotFound();
         }
 
         var response = mapper.Map<UserResponse>(user);
 
-        return Ok(BaseResponse.Ok(response, "User by ID retrieved successfully"));
+        return Ok(response);
     }
 
     [HttpPost]
-    [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> CreateUserV2(BaseRequest<UserRequest> request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateUserV1(UserRequest request)
     {
         var user = mapper.Map<User>(request);
 
@@ -49,13 +51,12 @@ public sealed partial class UsersController
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(BaseResponse.Ok("User was created successfully"));
+        return Ok();
     }
 
     [HttpPut("{id}")]
-    [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id,
-        BaseRequest<UserRequest> request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateUserV1(int id, UserRequest request)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -65,23 +66,23 @@ public sealed partial class UsersController
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound(BaseResponse.NotFound("User by ID was not found"));
+            return NotFound();
         }
 
-        user.Username = request.Data.Username;
-        user.Email = request.Data.Email;
-        user.Password = request.Data.Password;
+        user.Username = request.Username;
+        user.Email = request.Email;
+        user.Password = request.Password;
 
         logger.Information("Serilog | Updating user...");
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(BaseResponse.Ok("User by ID was updated successfully"));
+        return Ok();
     }
 
     [HttpDelete("{id}")]
-    [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> DeleteUserV2(BaseRequest request, int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteUserV1(int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -91,7 +92,7 @@ public sealed partial class UsersController
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound(BaseResponse.NotFound("User by ID was not found"));
+            return NotFound();
         }
 
         dbContext.Users.Remove(user);
@@ -100,6 +101,6 @@ public sealed partial class UsersController
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(BaseResponse.Ok("User by ID was deleted successfully"));
+        return Ok();
     }
 }

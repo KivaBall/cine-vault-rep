@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Controllers.Requests;
+﻿namespace CineVault.API.Controllers.Reviews;
 
 public sealed class ReviewRequest
 {

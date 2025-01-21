@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Controllers.Requests;
+﻿namespace CineVault.API.Controllers.Users;
 
 public sealed class UserRequest
 {

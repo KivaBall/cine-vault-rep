@@ -1,4 +1,4 @@
-namespace CineVault.API.Controllers;
+namespace CineVault.API.Controllers.AppInfo;
 
 public sealed class AppInfoController(
     IHostEnvironment environment,
