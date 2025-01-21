@@ -11,16 +11,13 @@ public sealed class SerilogMiddleware(ILogger logger) : IMiddleware
             string? controllerName = null;
             string? actionName = null;
 
-            if (endpoint != null)
-            {
-                var controllerActionDescriptor =
-                    endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+            var controllerActionDescriptor =
+                endpoint?.Metadata.GetMetadata<ControllerActionDescriptor>();
 
-                if (controllerActionDescriptor != null)
-                {
-                    controllerName = controllerActionDescriptor.ControllerName;
-                    actionName = controllerActionDescriptor.ActionName;
-                }
+            if (controllerActionDescriptor != null)
+            {
+                controllerName = controllerActionDescriptor.ControllerName;
+                actionName = controllerActionDescriptor.ActionName;
             }
 
             logger.Information(

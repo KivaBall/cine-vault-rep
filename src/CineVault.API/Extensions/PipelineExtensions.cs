@@ -24,16 +24,18 @@ public static class PipelineExtensions
 
     private static void UseSwaggerMiddleware(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        if (!app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
-
-            app.UseSwaggerUI(opt =>
-            {
-                opt.SwaggerEndpoint("v1/swagger.json", "CineVault 'Gray' API V1");
-
-                opt.SwaggerEndpoint("v2/swagger.json", "CineVault 'KitKat' API V2");
-            });
+            return;
         }
+
+        app.UseSwagger();
+
+        app.UseSwaggerUI(opt =>
+        {
+            opt.SwaggerEndpoint("v1/swagger.json", "CineVault 'Gray' API V1");
+
+            opt.SwaggerEndpoint("v2/swagger.json", "CineVault 'KitKat' API V2");
+        });
     }
 }
