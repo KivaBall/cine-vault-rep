@@ -1,4 +1,4 @@
-namespace CineVault.API.Controllers.Responses;
+namespace CineVault.API.Abstractions.Controllers;
 
 public class BaseResponse
 {
@@ -29,10 +29,11 @@ public class BaseResponse
         };
     }
 
-    public static BaseResponse Created(string message)
+    public static BaseResponse Created<T>(T data, string message)
     {
-        return new BaseResponse
+        return new BaseResponse<T>
         {
+            Data = data,
             StatusCode = 201,
             Success = true,
             Message = message
@@ -44,6 +45,16 @@ public class BaseResponse
         return new BaseResponse
         {
             StatusCode = 404,
+            Success = false,
+            Message = message
+        };
+    }
+
+    public static BaseResponse BadRequest(string message)
+    {
+        return new BaseResponse
+        {
+            StatusCode = 400,
             Success = false,
             Message = message
         };

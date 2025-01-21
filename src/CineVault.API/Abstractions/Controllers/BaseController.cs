@@ -1,4 +1,4 @@
-namespace CineVault.API.Abstractions;
+namespace CineVault.API.Abstractions.Controllers;
 
 [ApiController]
 [InheritedApiVersion(1)]
