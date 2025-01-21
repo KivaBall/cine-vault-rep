@@ -4,7 +4,7 @@ public sealed class UserProfile : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<UserProfile, User>();
+        config.NewConfig<UserRequest, User>();
 
         config.NewConfig<User, UserResponse>();
     }
