@@ -5,6 +5,7 @@ public sealed class ReviewProfile : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<ReviewRequest, Review>();
+            //.ConstructUsing(r => new Review(r.Comment, r.Rating, r.MovieId, r.UserId));
 
         config.NewConfig<Review, ReviewResponse>()
             .Map(r => r.MovieTitle,
