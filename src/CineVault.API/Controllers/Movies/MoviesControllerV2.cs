@@ -52,6 +52,7 @@ public sealed partial class MoviesController
 
         var movies = await query
             .Include(m => m.Reviews)
+            .ThenInclude(r => new { r.Reactions, r.User, r.Movie })
             .Select(m => mapper.Map<MovieResponse>(m))
             .ToListAsync();
 
@@ -67,6 +68,8 @@ public sealed partial class MoviesController
 
         var movie = await dbContext.Movies
             .Include(m => m.Reviews)
+            .ThenInclude(r => new { r.Reactions, r.User, r.Movie })
+            .Select(m => mapper.Map<MovieResponse>(m))
             .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie is null)
@@ -76,9 +79,7 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        var movieResponse = mapper.Map<MovieResponse>(movie);
-
-        return Ok(BaseResponse.Ok(movieResponse, "Movie by ID retrieved successfully"));
+        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved successfully"));
     }
 
     [HttpPost]
@@ -86,7 +87,7 @@ public sealed partial class MoviesController
     public async Task<ActionResult<BaseResponse<int>>> CreateMovieV2(
         BaseRequest<MovieRequest> request)
     {
-        var movie = mapper.Map<Movie>(request);
+        var movie = mapper.Map<Movie>(request.Data);
 
         dbContext.Movies.Add(movie);
 

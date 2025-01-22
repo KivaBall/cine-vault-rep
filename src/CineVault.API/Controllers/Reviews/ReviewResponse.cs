@@ -1,4 +1,6 @@
-﻿namespace CineVault.API.Controllers.Reviews;
+﻿using CineVault.API.Controllers.Reactions;
+
+namespace CineVault.API.Controllers.Reviews;
 
 public sealed class ReviewResponse
 {
@@ -10,4 +12,7 @@ public sealed class ReviewResponse
     public required int Rating { get; init; }
     public required string? Comment { get; init; }
     public required DateTime CreatedAt { get; init; }
+    public required ICollection<ReactionResponse> Reactions { get; init; }
+    public required int Likes { get; init; }
+    public required int Dislikes { get; init; }
 }

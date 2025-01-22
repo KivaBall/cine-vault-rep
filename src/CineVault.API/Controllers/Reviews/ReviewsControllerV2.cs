@@ -12,6 +12,7 @@ public sealed partial class ReviewsController
         var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
+            .Include(r => r.Reactions)
             .Select(r => mapper.Map<ReviewResponse>(r))
             .ToListAsync();
 
@@ -28,6 +29,8 @@ public sealed partial class ReviewsController
         var review = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
+            .Include(r => r.Reactions)
+            .Select(r => mapper.Map<ReviewResponse>(r))
             .FirstOrDefaultAsync(review => review.Id == id);
 
         if (review is null)
@@ -37,9 +40,7 @@ public sealed partial class ReviewsController
             return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
-        var response = mapper.Map<ReviewResponse>(review);
-
-        return Ok(BaseResponse.Ok(response, "Review by ID retrieved successfully"));
+        return Ok(BaseResponse.Ok(review, "Review by ID retrieved successfully"));
     }
 
     [HttpPost]
@@ -47,29 +48,46 @@ public sealed partial class ReviewsController
     public async Task<ActionResult<BaseResponse<int>>> CreateReviewV2(
         BaseRequest<ReviewRequest> request)
     {
-        if (request.Data.Rating < 1 || request.Data.Rating > 10)
+        if (request.Data.Rating is < 1 or > 10)
         {
-            logger.Warning(
-                "Serilog | Review has rating out of range - {Rating}",
+            logger.Warning("Serilog | Review has rating out of range - {Rating}",
                 request.Data.Rating);
 
-            return NotFound(BaseResponse.BadRequest("Review rating is not in correct span"));
+            return BadRequest(BaseResponse.BadRequest("Review rating is not in correct span"));
         }
 
-        var hypotheticReview = await dbContext.Reviews
-            .Where(r => r.MovieId == request.Data.MovieId)
-            .Where(r => r.UserId == request.Data.UserId)
-            .FirstOrDefaultAsync();
+        var movieExists = await dbContext.Movies.AnyAsync(m => m.Id == request.Data.MovieId);
 
-        if (hypotheticReview is not null)
+        if (!movieExists)
         {
-            logger.Warning("Serilog | Review for such User and Movie IDs has been existed");
+            logger.Warning("Serilog | Specified movie ID cannot be found");
+
+            return BadRequest(BaseResponse.BadRequest("Specified movie ID cannot be found"));
+        }
+
+        var userExists = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
+
+        if (!userExists)
+        {
+            logger.Warning("Serilog | Specified user ID cannot be found");
+
+            return BadRequest(BaseResponse.BadRequest("Specified user ID cannot be found"));
+        }
+
+        var reviewExists = await dbContext.Reviews
+            .AnyAsync(r =>
+                r.MovieId == request.Data.MovieId &&
+                r.UserId == request.Data.UserId);
+
+        if (reviewExists)
+        {
+            logger.Warning("Serilog | Review for such User and Movie IDs has been already created");
 
             return BadRequest(BaseResponse.BadRequest(
-                "Review for such User and Movie IDs has been existed"));
+                "Review for such User and Movie IDs has been already created"));
         }
 
-        var review = mapper.Map<Review>(request);
+        var review = mapper.Map<Review>(request.Data);
 
         dbContext.Reviews.Add(review);
 
@@ -85,12 +103,11 @@ public sealed partial class ReviewsController
     public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id,
         BaseRequest<ReviewRequest> request)
     {
-        if (request.Data.Rating < 1 || request.Data.Rating > 10)
+        if (request.Data.Rating is < 1 or > 10)
         {
             logger.Warning(
                 "Serilog | Review with ID {Id} has rating out of range - {Rating}",
-                id,
-                request.Data.Rating);
+                id, request.Data.Rating);
 
             return NotFound(BaseResponse.BadRequest("Review rating is not in correct span"));
         }

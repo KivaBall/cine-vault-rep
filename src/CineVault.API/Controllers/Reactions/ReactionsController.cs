@@ -11,6 +11,26 @@ public sealed class ReactionsController(
     public async Task<ActionResult<BaseResponse<int>>> CreateReactionV2(
         BaseRequest<ReactionRequest> request)
     {
+        var reviewIdExisting = await dbContext.Reviews.AnyAsync(m => m.Id == request.Data.ReviewId);
+
+        if (!reviewIdExisting)
+        {
+            logger.Warning("Serilog | Specified review ID cannot be found");
+
+            return BadRequest(BaseResponse.BadRequest(
+                "Specified review ID cannot be found"));
+        }
+
+        var userIdExisting = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
+
+        if (!userIdExisting)
+        {
+            logger.Warning("Serilog | Specified user ID cannot be found");
+
+            return BadRequest(BaseResponse.BadRequest(
+                "Specified user ID cannot be found"));
+        }
+
         var hypotheticReaction = await dbContext.Reactions
             .Where(r => r.ReviewId == request.Data.ReviewId)
             .Where(r => r.UserId == request.Data.UserId)
@@ -24,7 +44,7 @@ public sealed class ReactionsController(
                 "Reaction for such User and Review IDs has been existed"));
         }
 
-        var reaction = mapper.Map<Reaction>(request);
+        var reaction = mapper.Map<Reaction>(request.Data);
 
         dbContext.Reactions.Add(reaction);
 

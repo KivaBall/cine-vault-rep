@@ -10,4 +10,5 @@ public sealed class MovieResponse
     public required string? Director { get; init; }
     public required double AverageRating { get; init; }
     public required int ReviewCount { get; init; }
+    public required ICollection<ReviewResponse> Reviews { get; init; }
 }

@@ -33,9 +33,12 @@ public sealed partial class UsersController
             }
         }
 
+        var userAmount = request.Data.UsersPerPage ?? 10;
+        var page = request.Data.Page ?? 1;
+
         var users = await query
-            .Skip(request.Data.Page ?? 0 * request.Data.UsersPerPage ?? 10)
-            .Take(request.Data.UsersPerPage ?? 10)
+            .Skip(userAmount * (page - 1))
+            .Take(userAmount)
             .Select(u => mapper.Map<UserResponse>(u))
             .ToListAsync();
 
@@ -49,7 +52,10 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
-        var user = await dbContext.Users.FindAsync(id);
+        var user = await dbContext.Users
+            .Where(u => u.Id == id)
+            .Select(u => mapper.Map<UserResponse>(u))
+            .FirstOrDefaultAsync();
 
         if (user is null)
         {
@@ -58,9 +64,7 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        var response = mapper.Map<UserResponse>(user);
-
-        return Ok(BaseResponse.Ok(response, "User by ID retrieved successfully"));
+        return Ok(BaseResponse.Ok(user, "User by ID retrieved successfully"));
     }
 
     [HttpPost("username")]
@@ -73,6 +77,7 @@ public sealed partial class UsersController
 
         var user = await dbContext.Users
             .Where(u => u.Username == request.Data.Username)
+            .Select(u => mapper.Map<UserResponse>(u))
             .FirstOrDefaultAsync();
 
         if (user is null)
@@ -83,9 +88,7 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by username was not found"));
         }
 
-        var response = mapper.Map<UserResponse>(user);
-
-        return Ok(BaseResponse.Ok(response, "User by username retrieved successfully"));
+        return Ok(BaseResponse.Ok(user, "User by username retrieved successfully"));
     }
 
     [HttpPost("email")]
@@ -97,6 +100,7 @@ public sealed partial class UsersController
 
         var user = await dbContext.Users
             .Where(u => u.Email == request.Data.Email)
+            .Select(u => mapper.Map<UserResponse>(u))
             .FirstOrDefaultAsync();
 
         if (user is null)
@@ -106,9 +110,7 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by email was not found"));
         }
 
-        var response = mapper.Map<UserResponse>(user);
-
-        return Ok(BaseResponse.Ok(response, "User by email retrieved successfully"));
+        return Ok(BaseResponse.Ok(user, "User by email retrieved successfully"));
     }
 
     [HttpPost]
