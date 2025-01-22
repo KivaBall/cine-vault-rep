@@ -30,8 +30,9 @@ public sealed partial class ReviewsController
             .Include(r => r.Movie)
             .Include(r => r.User)
             .Include(r => r.Reactions)
+            .Where(r => r.Id == id)
             .Select(r => mapper.Map<ReviewResponse>(r))
-            .FirstOrDefaultAsync(review => review.Id == id);
+            .FirstOrDefaultAsync();
 
         if (review is null)
         {

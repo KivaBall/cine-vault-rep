@@ -52,7 +52,9 @@ public sealed partial class MoviesController
 
         var movies = await query
             .Include(m => m.Reviews)
-            .ThenInclude(r => new { r.Reactions, r.User, r.Movie })
+            .ThenInclude(r => r.Reactions)
+            .Include(m => m.Reviews)
+            .ThenInclude(r => r.User)
             .Select(m => mapper.Map<MovieResponse>(m))
             .ToListAsync();
 
@@ -68,9 +70,12 @@ public sealed partial class MoviesController
 
         var movie = await dbContext.Movies
             .Include(m => m.Reviews)
-            .ThenInclude(r => new { r.Reactions, r.User, r.Movie })
+            .ThenInclude(r => r.Reactions)
+            .Include(m => m.Reviews)
+            .ThenInclude(r => r.User)
+            .Where(m => m.Id == id)
             .Select(m => mapper.Map<MovieResponse>(m))
-            .FirstOrDefaultAsync(m => m.Id == id);
+            .FirstOrDefaultAsync();
 
         if (movie is null)
         {
@@ -171,7 +176,7 @@ public sealed partial class MoviesController
 
     [HttpDelete]
     [MapToApiVersion(2)]
-    public async Task<ActionResult<BaseResponse>> DeleteMoviesV2(
+    public async Task<ActionResult<BaseResponse<string>>> DeleteMoviesV2(
         BaseRequest<DeleteMoviesRequest> request)
     {
         logger.Information("Serilog | Getting movies with specified IDs {Ids}...",
@@ -207,8 +212,8 @@ public sealed partial class MoviesController
         logger.Information("Serilog | Deleting movies...");
 
         await dbContext.SaveChangesAsync();
-
+        
         return Ok(BaseResponse.Ok(undeletedIds,
-            "Movie by specified IDs were deleted successfully. The exception are movies IDs that have reviews were specified in Data key"));
+            "Movie by specified IDs were deleted successfully. The exception are movies IDs that have reviews were specified in Data"));
     }
 }

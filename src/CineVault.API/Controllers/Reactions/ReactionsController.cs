@@ -6,14 +6,36 @@ public sealed class ReactionsController(
     IMapper mapper)
     : BaseController
 {
+    [HttpPost("{id}")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ReactionResponse>>> GetReactionByIdV2(
+        BaseRequest request, int id)
+    {
+        logger.Information("Serilog | Getting reaction with ID {Id}...", id);
+
+        var reaction = await dbContext.Reactions
+            .Where(r => r.Id == id)
+            .Select(r => mapper.Map<ReactionResponse>(r))
+            .FirstOrDefaultAsync();
+
+        if (reaction is null)
+        {
+            logger.Warning("Serilog | Reaction with ID {Id} not found", id);
+
+            return NotFound(BaseResponse.NotFound("Reaction by ID was not found"));
+        }
+
+        return Ok(BaseResponse.Ok(reaction, "Reaction by ID retrieved successfully"));
+    }
+
     [HttpPost]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<int>>> CreateReactionV2(
         BaseRequest<ReactionRequest> request)
     {
-        var reviewIdExisting = await dbContext.Reviews.AnyAsync(m => m.Id == request.Data.ReviewId);
+        var reviewExists = await dbContext.Reviews.AnyAsync(m => m.Id == request.Data.ReviewId);
 
-        if (!reviewIdExisting)
+        if (!reviewExists)
         {
             logger.Warning("Serilog | Specified review ID cannot be found");
 
@@ -21,9 +43,9 @@ public sealed class ReactionsController(
                 "Specified review ID cannot be found"));
         }
 
-        var userIdExisting = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
+        var userExists = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
 
-        if (!userIdExisting)
+        if (!userExists)
         {
             logger.Warning("Serilog | Specified user ID cannot be found");
 
@@ -31,12 +53,12 @@ public sealed class ReactionsController(
                 "Specified user ID cannot be found"));
         }
 
-        var hypotheticReaction = await dbContext.Reactions
-            .Where(r => r.ReviewId == request.Data.ReviewId)
-            .Where(r => r.UserId == request.Data.UserId)
-            .FirstOrDefaultAsync();
+        var reactionExists = await dbContext.Reactions
+            .AnyAsync(r =>
+                r.ReviewId == request.Data.ReviewId &&
+                r.UserId == request.Data.UserId);
 
-        if (hypotheticReaction is not null)
+        if (reactionExists)
         {
             logger.Warning("Serilog | Reaction for such User and Review IDs has been existed");
 
