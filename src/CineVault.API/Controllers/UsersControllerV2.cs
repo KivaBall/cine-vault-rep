@@ -64,7 +64,7 @@ public sealed partial class UsersController
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(BaseResponse.Ok("User was created successfully"));
+        return Ok(BaseResponse.Created("User was created successfully"));
     }
 
     [HttpPut("{id}")]
