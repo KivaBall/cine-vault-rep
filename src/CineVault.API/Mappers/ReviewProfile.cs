@@ -11,6 +11,10 @@ public sealed class ReviewProfile : IRegister
             .Map(r => r.MovieTitle,
                 r => r.Movie!.Title)
             .Map(r => r.Username,
-                r => r.User!.Username);
+                r => r.User!.Username)
+            .Map(r => r.Likes,
+                r => r.Reactions.Count(r2 => r2.IsLike))
+            .Map(r => r.Dislikes,
+                r => r.Reactions.Count(r2 => !r2.IsLike));
     }
 }
