@@ -13,6 +13,6 @@ public sealed class Reaction : BaseEntity
     public int ReviewId { get; set; }
     public int UserId { get; set; }
 
-    public Review? Review { get; set; } // NavProperty
-    public User? User { get; set; } // NavProperty
+    public Review Review { get; set; } // NavProperty
+    public User User { get; set; } // NavProperty
 }
