@@ -4,9 +4,8 @@ public sealed class MovieProfile : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<MovieRequest, Movie>();
-         //   .ConstructUsing(m =>
-         //       new Movie(m.Title, m.Description, m.ReleaseDate, m.Genre, m.Director));
+        config.NewConfig<MovieRequest, Movie>()
+            .MapWith(m => new Movie(m.Title, m.Description, m.ReleaseDate, m.Genre, m.Director));
 
         config.NewConfig<Movie, MovieResponse>()
             .Map(m => m.AverageRating,
