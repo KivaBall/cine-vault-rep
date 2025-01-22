@@ -116,7 +116,7 @@ public sealed partial class UsersController
     public async Task<ActionResult<BaseResponse<int>>> CreateUserV2(
         BaseRequest<UserRequest> request)
     {
-        var user = mapper.Map<User>(request);
+        var user = mapper.Map<User>(request.Data);
 
         dbContext.Users.Add(user);
 
