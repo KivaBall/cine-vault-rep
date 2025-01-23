@@ -11,6 +11,7 @@ public sealed partial class UsersController
 
         var query = dbContext.Users.AsQueryable();
 
+        // TODO 2 Реалізувати фільтрацію за датою створення та сортування результатів
         if (request.Data.MinCreatedDate != null)
         {
             query = query.Where(u => u.CreatedAt >= request.Data.MinCreatedDate);
@@ -33,6 +34,7 @@ public sealed partial class UsersController
             }
         }
 
+        // TODO 2 Додати пагінацію для результатів пошуку
         var userAmount = request.Data.UsersPerPage ?? 10;
         var page = request.Data.Page ?? 1;
 
@@ -67,6 +69,7 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by ID retrieved successfully"));
     }
 
+    // TODO 2  Додати можливість пошуку користувачів за username або email
     [HttpPost("username")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByUsernameV2(
@@ -91,6 +94,7 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by username retrieved successfully"));
     }
 
+    // TODO 2  Додати можливість пошуку користувачів за username або email
     [HttpPost("email")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByEmailV2(

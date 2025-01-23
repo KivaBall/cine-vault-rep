@@ -1,5 +1,6 @@
 ﻿namespace CineVault.API.Controllers.Reviews;
 
+// TODO 4 Реалізувати CRUD для коментарів до відгуків 
 public sealed partial class ReviewsController
 {
     [HttpPost("all")]
@@ -49,6 +50,7 @@ public sealed partial class ReviewsController
     public async Task<ActionResult<BaseResponse<int>>> CreateReviewV2(
         BaseRequest<ReviewRequest> request)
     {
+        // TODO 4 Додати можливість ставить відгуки з оцінкою-рейтингом (від 1 до 10)
         if (request.Data.Rating is < 1 or > 10)
         {
             logger.Warning("Serilog | Review has rating out of range - {Rating}",
@@ -75,6 +77,7 @@ public sealed partial class ReviewsController
             return BadRequest(BaseResponse.BadRequest("Specified user ID cannot be found"));
         }
 
+        // TODO 6 Заборонити можливість в межах одного фільму певного користувача постити 1 відгук та проставляти 1 оцінку (рейтинг). Якщо такий відгук проставлений, то оновити його
         var reviewExists = await dbContext.Reviews
             .AnyAsync(r =>
                 r.MovieId == request.Data.MovieId &&
@@ -104,6 +107,7 @@ public sealed partial class ReviewsController
     public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id,
         BaseRequest<ReviewRequest> request)
     {
+        // TODO 4 Додати можливість ставить відгуки з оцінкою-рейтингом (від 1 до 10)
         if (request.Data.Rating is < 1 or > 10)
         {
             logger.Warning(

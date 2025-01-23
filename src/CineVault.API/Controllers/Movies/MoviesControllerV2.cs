@@ -5,12 +5,14 @@ public sealed partial class MoviesController
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<MovieResponse>>>> GetMoviesV2(
+        // TODO 3 Реалізувати складні запити, які дозволяють комбінувати кілька критеріїв
         BaseRequest<GetMoviesRequest> request)
     {
         logger.Information("Serilog | Getting movies...");
 
         var query = dbContext.Movies.AsQueryable();
 
+        // TODO 3 Реалізувати пошук фільмів за жанром, назвою або режисером 
         if (request.Data.Title != null)
         {
             query = query.Where(m => m.Title == request.Data.Title);
@@ -26,6 +28,7 @@ public sealed partial class MoviesController
             query = query.Where(m => m.Director == request.Data.Director);
         }
 
+        // TODO 3 Додати фільтрацію за роком випуску та середнім рейтингом
         if (request.Data.MinReleaseDate != null)
         {
             query = query.Where(m => m.ReleaseDate >= request.Data.MinReleaseDate);
@@ -103,6 +106,7 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Created(movie.Id, "Movie was created successfully"));
     }
 
+    // TODO 1 Додати реалізацію масового завантаження фільмів
     [HttpPost("several")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<int>>>> CreateMoviesV2(
@@ -174,6 +178,7 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok("Movie by ID was deleted successfully"));
     }
 
+    // TODO 7 Додати реалізацію для масового видалення за списком ID
     [HttpDelete]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<string>>> DeleteMoviesV2(
@@ -193,6 +198,7 @@ public sealed partial class MoviesController
 
         var undeletedIds = new List<int>();
 
+        // TODO 7 Додати перевірку, чи є фільми у відгуках, перед видаленням. Якщо є, то не видаляти такий, а виводити попередження, а інші фільми з масиву видалити
         foreach (var tuple in tuples)
         {
             if (tuple.HasReview)

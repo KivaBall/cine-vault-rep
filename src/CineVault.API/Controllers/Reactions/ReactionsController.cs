@@ -1,5 +1,6 @@
 namespace CineVault.API.Controllers.Reactions;
 
+// TODO 5 Підтримка лайків для відгуків-коментарів з оцінкою
 public sealed class ReactionsController(
     CineVaultDbContext dbContext,
     ILogger logger,
