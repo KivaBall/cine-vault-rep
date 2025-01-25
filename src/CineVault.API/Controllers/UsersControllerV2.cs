@@ -1,9 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger) : BaseController
+public sealed partial class UsersController
 {
-    [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetUsers()
+    [HttpPost("all")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2(
+        BaseRequest request)
     {
         logger.Information("Serilog | Getting users...");
 
@@ -16,11 +18,13 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
             })
             .ToListAsync();
 
-        return Ok(users);
+        return Ok(BaseResponse.Ok(users, "Users retrieved successfully"));
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetUserById(int id)
+    [HttpPost("{id}")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(BaseRequest request,
+        int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -30,7 +34,7 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
         var response = new UserResponse
@@ -40,17 +44,18 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
             Email = user.Email
         };
 
-        return Ok(response);
+        return Ok(BaseResponse.Ok(response, "User by ID retrieved successfully"));
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateUser(UserRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> CreateUserV2(BaseRequest<UserRequest> request)
     {
         var user = new User
         {
-            Username = request.Username,
-            Email = request.Email,
-            Password = request.Password
+            Username = request.Data.Username,
+            Email = request.Data.Email,
+            Password = request.Data.Password
         };
 
         dbContext.Users.Add(user);
@@ -59,11 +64,13 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Created("User was created successfully"));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUser(int id, UserRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id,
+        BaseRequest<UserRequest> request)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -73,22 +80,23 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        user.Username = request.Username;
-        user.Email = request.Email;
-        user.Password = request.Password;
+        user.Username = request.Data.Username;
+        user.Email = request.Data.Email;
+        user.Password = request.Data.Password;
 
         logger.Information("Serilog | Updating user...");
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("User by ID was updated successfully"));
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(int id)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> DeleteUserV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -98,7 +106,7 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
         dbContext.Users.Remove(user);
@@ -107,6 +115,6 @@ public sealed class UsersController(CineVaultDbContext dbContext, ILogger logger
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("User by ID was deleted successfully"));
     }
 }

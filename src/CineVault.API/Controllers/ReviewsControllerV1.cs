@@ -1,9 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logger) : BaseController
+public sealed partial class ReviewsController(CineVaultDbContext dbContext, ILogger logger)
+    : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<ReviewResponse>>> GetReviewsV1()
     {
         logger.Information("Serilog | Getting reviews...");
 
@@ -27,7 +29,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ReviewResponse>> GetReviewById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<ReviewResponse>> GetReviewByIdV1(int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
@@ -59,7 +62,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateReview(ReviewRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateReviewV1(ReviewRequest request)
     {
         var review = new Review
         {
@@ -79,7 +83,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateReviewV1(int id, ReviewRequest request)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
@@ -105,7 +110,8 @@ public sealed class ReviewsController(CineVaultDbContext dbContext, ILogger logg
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteReview(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteReviewV1(int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 

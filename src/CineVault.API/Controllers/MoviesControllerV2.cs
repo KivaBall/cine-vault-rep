@@ -1,9 +1,11 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logger) : BaseController
+public sealed partial class MoviesController
 {
-    [HttpGet]
-    public async Task<ActionResult<List<MovieResponse>>> GetMovies()
+    [HttpPost("all")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<List<MovieResponse>>>> GetMoviesV2(
+        BaseRequest request)
     {
         logger.Information("Serilog | Getting movies...");
 
@@ -24,11 +26,13 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
             })
             .ToListAsync();
 
-        return Ok(movies);
+        return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
+    [HttpPost("{id}")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(BaseRequest request,
+        int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -40,10 +44,10 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        var response = new MovieResponse
+        var movieResponse = new MovieResponse
         {
             Id = movie.Id,
             Title = movie.Title,
@@ -57,19 +61,20 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
             ReviewCount = movie.Reviews.Count
         };
 
-        return Ok(response);
+        return Ok(BaseResponse.Ok(movieResponse, "Movie by ID retrieved successfully"));
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateMovie(MovieRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> CreateMovieV2(BaseRequest<MovieRequest> request)
     {
         var movie = new Movie
         {
-            Title = request.Title,
-            Description = request.Description,
-            ReleaseDate = request.ReleaseDate,
-            Genre = request.Genre,
-            Director = request.Director
+            Title = request.Data.Title,
+            Description = request.Data.Description,
+            ReleaseDate = request.Data.ReleaseDate,
+            Genre = request.Data.Genre,
+            Director = request.Data.Director
         };
 
         dbContext.Movies.Add(movie);
@@ -78,11 +83,13 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
 
         await dbContext.SaveChangesAsync();
 
-        return Created();
+        return Ok(BaseResponse.Created("Movie was created successfully"));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> UpdateMovieV2(int id,
+        BaseRequest<MovieRequest> request)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -92,24 +99,25 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        movie.Title = request.Title;
-        movie.Description = request.Description;
-        movie.ReleaseDate = request.ReleaseDate;
-        movie.Genre = request.Genre;
-        movie.Director = request.Director;
+        movie.Title = request.Data.Title;
+        movie.Description = request.Data.Description;
+        movie.ReleaseDate = request.Data.ReleaseDate;
+        movie.Genre = request.Data.Genre;
+        movie.Director = request.Data.Director;
 
         logger.Information("Serilog | Updating movie...");
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("Movie by ID was updated successfully"));
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteMovie(int id)
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> DeleteMovieV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -119,7 +127,7 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
-            return NotFound();
+            return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
         dbContext.Movies.Remove(movie);
@@ -128,6 +136,6 @@ public sealed class MoviesController(CineVaultDbContext dbContext, ILogger logge
 
         await dbContext.SaveChangesAsync();
 
-        return Ok();
+        return Ok(BaseResponse.Ok("Movie by ID was deleted successfully"));
     }
 }

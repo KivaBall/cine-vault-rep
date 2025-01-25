@@ -7,6 +7,8 @@ public static class ServicesExtensions
     {
         services.AddDbContext(configuration);
 
+        services.AddVersioning();
+
         services.AddEndpoints();
 
         services.AddLoggingWithSerilog(configuration);
@@ -27,6 +29,24 @@ public static class ServicesExtensions
 
             options.UseInMemoryDatabase(connectionString);
         });
+    }
+
+    private static void AddVersioning(this IServiceCollection services)
+    {
+        services
+            .AddApiVersioning(opt =>
+            {
+                opt.DefaultApiVersion = new ApiVersion(1);
+                opt.ReportApiVersions = true;
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.ApiVersionReader = new UrlSegmentApiVersionReader();
+            })
+            .AddMvc()
+            .AddApiExplorer(opt =>
+            {
+                opt.GroupNameFormat = "'v'V";
+                opt.SubstituteApiVersionInUrl = true;
+            });
     }
 
     private static void AddEndpoints(this IServiceCollection services)
@@ -73,7 +93,19 @@ public static class ServicesExtensions
     {
         if (environment.IsDevelopment())
         {
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(opt =>
+            {
+                opt.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "1",
+                    Title = "CineVault API"
+                });
+                opt.SwaggerDoc("v2", new OpenApiInfo
+                {
+                    Version = "2",
+                    Title = "CineVault API"
+                });
+            });
         }
     }
 }
