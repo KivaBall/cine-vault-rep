@@ -1,6 +1,8 @@
+global using Asp.Versioning;
 global using System.Diagnostics;
 global using System.Reflection;
 global using CineVault.API.Abstractions;
+global using CineVault.API.Attributes;
 global using CineVault.API.Controllers.Requests;
 global using CineVault.API.Controllers.Responses;
 global using CineVault.API.Entities;
@@ -11,6 +13,7 @@ global using MapsterMapper;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.OpenApi.Models;
 global using Serilog;
 global using Serilog.Events;
 global using ILogger = Serilog.ILogger;

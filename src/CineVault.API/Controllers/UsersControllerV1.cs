@@ -1,13 +1,14 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class UsersController(
+public sealed partial class UsersController(
     CineVaultDbContext dbContext,
     ILogger logger,
     IMapper mapper)
     : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserResponse>>> GetUsers()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<UserResponse>>> GetUsersV1()
     {
         logger.Information("Serilog | Getting users...");
 
@@ -19,7 +20,8 @@ public sealed class UsersController(
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserResponse>> GetUserById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<UserResponse>> GetUserByIdV1(int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -38,7 +40,8 @@ public sealed class UsersController(
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateUser(UserRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateUserV1(UserRequest request)
     {
         var user = mapper.Map<User>(request);
 
@@ -52,7 +55,8 @@ public sealed class UsersController(
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateUser(int id, UserRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateUserV1(int id, UserRequest request)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
@@ -77,7 +81,8 @@ public sealed class UsersController(
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteUserV1(int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 

@@ -1,13 +1,14 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class MoviesController(
+public sealed partial class MoviesController(
     CineVaultDbContext dbContext,
     ILogger logger,
     IMapper mapper)
     : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<MovieResponse>>> GetMovies()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<MovieResponse>>> GetMoviesV1()
     {
         logger.Information("Serilog | Getting movies...");
 
@@ -20,7 +21,8 @@ public sealed class MoviesController(
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<MovieResponse>> GetMovieById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<MovieResponse>> GetMovieByIdV1(int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -41,7 +43,8 @@ public sealed class MoviesController(
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateMovie(MovieRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateMovieV1(MovieRequest request)
     {
         var movie = mapper.Map<Movie>(request);
 
@@ -55,7 +58,8 @@ public sealed class MoviesController(
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateMovie(int id, MovieRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateMovieV1(int id, MovieRequest request)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
@@ -82,7 +86,8 @@ public sealed class MoviesController(
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteMovie(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteMovieV1(int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 

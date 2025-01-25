@@ -1,13 +1,14 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed class ReviewsController(
+public sealed partial class ReviewsController(
     CineVaultDbContext dbContext,
     ILogger logger,
     IMapper mapper)
     : BaseController
 {
     [HttpGet]
-    public async Task<ActionResult<List<ReviewResponse>>> GetReviews()
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<List<ReviewResponse>>> GetReviewsV1()
     {
         logger.Information("Serilog | Getting reviews...");
 
@@ -21,7 +22,8 @@ public sealed class ReviewsController(
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ReviewResponse>> GetReviewById(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult<ReviewResponse>> GetReviewByIdV1(int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
@@ -43,7 +45,8 @@ public sealed class ReviewsController(
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateReview(ReviewRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> CreateReviewV1(ReviewRequest request)
     {
         var review = mapper.Map<Review>(request);
 
@@ -57,7 +60,8 @@ public sealed class ReviewsController(
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateReview(int id, ReviewRequest request)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> UpdateReviewV1(int id, ReviewRequest request)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
@@ -83,7 +87,8 @@ public sealed class ReviewsController(
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteReview(int id)
+    [MapToApiVersion(1)]
+    public async Task<ActionResult> DeleteReviewV1(int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
