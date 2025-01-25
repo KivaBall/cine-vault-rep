@@ -1,6 +1,9 @@
 ﻿namespace CineVault.API.Controllers;
 
-public sealed partial class MoviesController(CineVaultDbContext dbContext, ILogger logger)
+public sealed partial class MoviesController(
+    CineVaultDbContext dbContext,
+    ILogger logger,
+    IMapper mapper)
     : BaseController
 {
     [HttpGet]
@@ -11,19 +14,7 @@ public sealed partial class MoviesController(CineVaultDbContext dbContext, ILogg
 
         var movies = await dbContext.Movies
             .Include(m => m.Reviews)
-            .Select(m => new MovieResponse
-            {
-                Id = m.Id,
-                Title = m.Title,
-                Description = m.Description,
-                ReleaseDate = m.ReleaseDate,
-                Genre = m.Genre,
-                Director = m.Director,
-                AverageRating = m.Reviews.Count != 0
-                    ? m.Reviews.Average(r => r.Rating)
-                    : 0,
-                ReviewCount = m.Reviews.Count
-            })
+            .Select(m => mapper.Map<MovieResponse>(m))
             .ToListAsync();
 
         return Ok(movies);
@@ -46,19 +37,7 @@ public sealed partial class MoviesController(CineVaultDbContext dbContext, ILogg
             return NotFound();
         }
 
-        var response = new MovieResponse
-        {
-            Id = movie.Id,
-            Title = movie.Title,
-            Description = movie.Description,
-            ReleaseDate = movie.ReleaseDate,
-            Genre = movie.Genre,
-            Director = movie.Director,
-            AverageRating = movie.Reviews.Count != 0
-                ? movie.Reviews.Average(r => r.Rating)
-                : 0,
-            ReviewCount = movie.Reviews.Count
-        };
+        var response = mapper.Map<MovieResponse>(movie);
 
         return Ok(response);
     }
@@ -67,14 +46,7 @@ public sealed partial class MoviesController(CineVaultDbContext dbContext, ILogg
     [MapToApiVersion(1)]
     public async Task<ActionResult> CreateMovieV1(MovieRequest request)
     {
-        var movie = new Movie
-        {
-            Title = request.Title,
-            Description = request.Description,
-            ReleaseDate = request.ReleaseDate,
-            Genre = request.Genre,
-            Director = request.Director
-        };
+        var movie = mapper.Map<Movie>(request);
 
         dbContext.Movies.Add(movie);
 

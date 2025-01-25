@@ -14,6 +14,8 @@ public static class ServicesExtensions
         services.AddLoggingWithSerilog(configuration);
 
         services.AddSwagger(environment);
+
+        services.AddMappers();
     }
 
     private static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
@@ -107,5 +109,11 @@ public static class ServicesExtensions
                 });
             });
         }
+    }
+
+    private static void AddMappers(this IServiceCollection services)
+    {
+        services.AddMapster();
+        TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
     }
 }

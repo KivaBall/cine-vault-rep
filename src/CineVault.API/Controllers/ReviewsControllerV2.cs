@@ -12,17 +12,7 @@ public sealed partial class ReviewsController
         var reviews = await dbContext.Reviews
             .Include(r => r.Movie)
             .Include(r => r.User)
-            .Select(r => new ReviewResponse
-            {
-                Id = r.Id,
-                MovieId = r.MovieId,
-                MovieTitle = r.Movie!.Title,
-                UserId = r.UserId,
-                Username = r.User!.Username,
-                Rating = r.Rating,
-                Comment = r.Comment,
-                CreatedAt = r.CreatedAt
-            })
+            .Select(r => mapper.Map<ReviewResponse>(r))
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(reviews, "Reviews retrieved successfully"));
@@ -47,17 +37,7 @@ public sealed partial class ReviewsController
             return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
-        var response = new ReviewResponse
-        {
-            Id = review.Id,
-            MovieId = review.MovieId,
-            MovieTitle = review.Movie!.Title,
-            UserId = review.UserId,
-            Username = review.User!.Username,
-            Rating = review.Rating,
-            Comment = review.Comment,
-            CreatedAt = review.CreatedAt
-        };
+        var response = mapper.Map<ReviewResponse>(review);
 
         return Ok(BaseResponse.Ok(response, "Review by ID retrieved successfully"));
     }
@@ -66,13 +46,7 @@ public sealed partial class ReviewsController
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> CreateReviewV2(BaseRequest<ReviewRequest> request)
     {
-        var review = new Review
-        {
-            MovieId = request.Data.MovieId,
-            UserId = request.Data.UserId,
-            Rating = request.Data.Rating,
-            Comment = request.Data.Comment
-        };
+        var review = mapper.Map<Review>(request.Data);
 
         dbContext.Reviews.Add(review);
 

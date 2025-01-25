@@ -1,6 +1,9 @@
 namespace CineVault.API.Controllers;
 
-public sealed class AppInfoController(IHostEnvironment environment, ILogger logger) : BaseController
+public sealed class AppInfoController(
+    IHostEnvironment environment,
+    ILogger logger)
+    : BaseController
 {
     [HttpGet("environment")]
     [MapToApiVersion(1)]
