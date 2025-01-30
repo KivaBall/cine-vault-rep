@@ -1,0 +1,13 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": {
+    "isLike": true,
+    "reviewId": 1,
+    "userId": 1
+  }
+}
