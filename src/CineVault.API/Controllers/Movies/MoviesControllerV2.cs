@@ -196,6 +196,7 @@ public sealed partial class MoviesController
             })
             .ToListAsync();
 
+        var deletedIds = new List<int>();
         var undeletedIds = new List<int>();
 
         // TODO 7 Додати перевірку, чи є фільми у відгуках, перед видаленням. Якщо є, то не видаляти такий, а виводити попередження, а інші фільми з масиву видалити
@@ -212,14 +213,20 @@ public sealed partial class MoviesController
             else
             {
                 dbContext.Movies.Remove(tuple.Movie);
+
+                deletedIds.Add(tuple.Movie.Id);
             }
         }
 
         logger.Information("Serilog | Deleting movies...");
 
         await dbContext.SaveChangesAsync();
-        
-        return Ok(BaseResponse.Ok(undeletedIds,
-            "Movie by specified IDs were deleted successfully. The exception are movies IDs that have reviews were specified in Data"));
+
+        var response = BaseResponse.Ok(deletedIds,
+            "Movie by specified IDs in Data were deleted successfully. The exception are movies IDs that have reviews were specified in Meta");
+
+        response.Meta.Add("undeletedIds", undeletedIds);
+
+        return Ok(response);
     }
 }
