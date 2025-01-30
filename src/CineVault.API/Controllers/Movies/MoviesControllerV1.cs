@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Controllers;
+﻿namespace CineVault.API.Controllers.Movies;
 
 public sealed partial class MoviesController(
     CineVaultDbContext dbContext,

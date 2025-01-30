@@ -1,10 +1,20 @@
 ﻿namespace CineVault.API.Entities;
 
-public sealed class User
+public sealed class User : BaseEntity
 {
-    public int Id { get; set; }
-    public required string Username { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
-    public ICollection<Review> Reviews { get; set; } = [];
+    public User(string username, string email, string password)
+    {
+        Username = username;
+        Email = email;
+        Password = password;
+        CreatedAt = DateTime.UtcNow;
+    }
+
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public DateTime CreatedAt { get; set; }
+
+    public ICollection<Review> Reviews { get; } = []; // NavProperty
+    public ICollection<Reaction> Reactions { get; } = []; // NavProperty
 }

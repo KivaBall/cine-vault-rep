@@ -1,0 +1,15 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": {
+    "title": "The Shawshank Redemption",
+    "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
+    "releaseDate": "1994-09-22",
+    "genre": "Drama",
+    "director": "Frank Darabont"
+  }
+}

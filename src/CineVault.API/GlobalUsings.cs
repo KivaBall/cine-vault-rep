@@ -1,10 +1,12 @@
 global using Asp.Versioning;
 global using System.Diagnostics;
 global using System.Reflection;
-global using CineVault.API.Abstractions;
+global using CineVault.API.Abstractions.Controllers;
+global using CineVault.API.Abstractions.Entities;
 global using CineVault.API.Attributes;
-global using CineVault.API.Controllers.Requests;
-global using CineVault.API.Controllers.Responses;
+global using CineVault.API.Controllers.Movies;
+global using CineVault.API.Controllers.Reviews;
+global using CineVault.API.Controllers.Users;
 global using CineVault.API.Entities;
 global using CineVault.API.Extensions;
 global using CineVault.API.Middlewares;
