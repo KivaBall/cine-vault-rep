@@ -6,7 +6,7 @@ public class BaseResponse
     public required bool Success { get; set; }
     public required string Message { get; set; }
     public DateTime ResponseDate { get; } = DateTime.UtcNow;
-    public Dictionary<string, string> Meta { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, object> Meta { get; set; } = new Dictionary<string, object>();
 
     public static BaseResponse Ok(string message)
     {
