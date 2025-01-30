@@ -83,12 +83,18 @@ public sealed partial class ReviewsController
                 r.MovieId == request.Data.MovieId &&
                 r.UserId == request.Data.UserId);
 
+        // TODO 6 Якщо такий відгук проставлений, то оновити його
         if (reviewExists)
         {
-            logger.Warning("Serilog | Review for such User and Movie IDs has been already created");
+            var updatedReview = mapper.Map<Review>(request.Data);
 
-            return BadRequest(BaseResponse.BadRequest(
-                "Review for such User and Movie IDs has been already created"));
+            dbContext.Reviews.Update(updatedReview);
+
+            logger.Information("Serilog | Updating review...");
+
+            await dbContext.SaveChangesAsync();
+
+            return Ok(BaseResponse.Ok("Review was updated successfully"));
         }
 
         var review = mapper.Map<Review>(request.Data);
