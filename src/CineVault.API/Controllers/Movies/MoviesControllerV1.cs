@@ -20,7 +20,7 @@ public sealed partial class MoviesController(
         return Ok(movies);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult<MovieResponse>> GetMovieByIdV1(int id)
     {
@@ -57,7 +57,7 @@ public sealed partial class MoviesController(
         return Created();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> UpdateMovieV1(int id, MovieRequest request)
     {
@@ -85,7 +85,7 @@ public sealed partial class MoviesController(
         return Ok();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> DeleteMovieV1(int id)
     {

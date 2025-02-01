@@ -9,4 +9,6 @@ public sealed class GetMoviesRequest
     public required DateOnly? MaxReleaseDate { get; init; }
     public required int? MinAvgRating { get; init; }
     public required int? MaxAvgRating { get; init; }
+    public required int? UsersPerPage { get; init; }
+    public required int? Page { get; init; }
 }

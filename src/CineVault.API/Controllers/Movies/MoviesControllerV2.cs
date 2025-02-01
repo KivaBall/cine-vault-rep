@@ -9,77 +9,96 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movies...");
 
-        var query = dbContext.Movies.AsQueryable();
-
-        // TODO 3 Реалізувати пошук фільмів за жанром, назвою або режисером 
-        if (request.Data.Title != null)
-        {
-            query = query.Where(m => m.Title == request.Data.Title);
-        }
-
-        if (request.Data.Genre != null)
-        {
-            query = query.Where(m => m.Genre == request.Data.Genre);
-        }
-
-        if (request.Data.Director != null)
-        {
-            query = query.Where(m => m.Director == request.Data.Director);
-        }
-
-        // TODO 3 Додати фільтрацію за роком випуску та середнім рейтингом
-        if (request.Data.MinReleaseDate != null)
-        {
-            query = query.Where(m => m.ReleaseDate >= request.Data.MinReleaseDate);
-        }
-
-        if (request.Data.MaxReleaseDate != null)
-        {
-            query = query.Where(m => m.ReleaseDate <= request.Data.MaxReleaseDate);
-        }
-
-        if (request.Data.MinAvgRating != null)
-        {
-            query = query.Where(m => (m.Reviews.Count != 0
-                ? m.Reviews.Average(r => r.Rating)
-                : 0) >= request.Data.MinAvgRating);
-        }
-
-        if (request.Data.MaxAvgRating != null)
-        {
-            query = query.Where(m => (m.Reviews.Count != 0
-                ? m.Reviews.Average(r => r.Rating)
-                : 0) <= request.Data.MaxAvgRating);
-        }
-
-        var movies = await query
-            .Include(m => m.Reviews)
-            .ThenInclude(r => r.Reactions)
-            .Include(m => m.Reviews)
-            .ThenInclude(r => r.User)
-            .Select(m => mapper.Map<MovieResponse>(m))
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var movies = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m =>
+                request.Data.Title == null
+                || m.Title == request.Data.Title)
+            .Where(m =>
+                request.Data.Genre == null
+                || m.Genre == request.Data.Genre)
+            .Where(m =>
+                request.Data.Director == null
+                || m.Director == request.Data.Director)
+            .Where(m =>
+                request.Data.MinReleaseDate == null
+                || m.ReleaseDate >= request.Data.MinReleaseDate)
+            .Where(m =>
+                request.Data.MaxReleaseDate == null
+                || m.ReleaseDate <= request.Data.MaxReleaseDate)
+            .Where(m =>
+                request.Data.MinAvgRating == null
+                || (m.Reviews.Count != 0 ? m.Reviews.Average(r => r.Rating) : 0) >=
+                request.Data.MinAvgRating)
+            .Where(m =>
+                request.Data.MaxAvgRating == null
+                || (m.Reviews.Count != 0 ? m.Reviews.Average(r => r.Rating) : 0) <=
+                request.Data.MaxAvgRating)
+            .Skip((request.Data.UsersPerPage ?? 10) * ((request.Data.Page ?? 1) - 1))
+            .Take(request.Data.UsersPerPage ?? 10)
+            .ProjectToType<MovieResponse>()
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
-    [HttpPost("{id}")]
+    // TODO 9 Додати такі нові методи в API
+    [HttpPost("search-movies")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ICollection<MovieResponse>>>> SearchMoviesV2(
+        BaseRequest<SearchMoviesRequest> request)
+    {
+        logger.Information("Serilog | Getting movies...");
+
+        var searchText = request.Data.SearchText?.ToLower();
+
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var movies = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m =>
+                request.Data.SearchText == null
+                || m.Title.ToLower().Contains(searchText!)
+                || (m.Description != null && m.Description.ToLower().Contains(searchText!))
+                || (m.Director != null && m.Director.ToLower().Contains(searchText!)))
+            .Where(m =>
+                request.Data.Genre == null
+                || m.Genre == request.Data.Genre)
+            .Where(m =>
+                request.Data.MinAvgRating == null
+                || (m.Reviews.Count != 0 ? m.Reviews.Average(r => r.Rating) : 0) >=
+                request.Data.MinAvgRating)
+            .Where(m =>
+                request.Data.MinReleaseDate == null
+                || m.ReleaseDate >= request.Data.MinReleaseDate)
+            .Where(m =>
+                request.Data.MaxReleaseDate == null
+                || m.ReleaseDate <= request.Data.MaxReleaseDate)
+            .ProjectToType<MovieResponse>()
+            .ToListAsync();
+
+        return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
+    }
+
+    [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(
         BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var movie = await dbContext.Movies
-            .Include(m => m.Reviews)
-            .ThenInclude(r => r.Reactions)
-            .Include(m => m.Reviews)
-            .ThenInclude(r => r.User)
-            .Where(m => m.Id == id)
-            .Select(m => mapper.Map<MovieResponse>(m))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<MovieResponse>()
+            .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (movie is null)
+        if (movie == null)
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
@@ -89,11 +108,48 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved successfully"));
     }
 
+    // TODO 9 Додати такі нові методи в API
+    [HttpPost("{id:int}/movie-details")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<MovieDetails>>> GetMovieDetailsV2(
+        BaseRequest request, int id)
+    {
+        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
+        var movie = await dbContext.Movies
+            .AsNoTracking()
+            .ProjectToType<MovieDetails>()
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (movie == null)
+        {
+            logger.Warning("Serilog | Movie with ID {Id} not found", id);
+
+            return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
+        }
+
+        return Ok(BaseResponse.Ok(movie, "Movie details by ID retrieved successfully"));
+    }
+
     [HttpPost]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<int>>> CreateMovieV2(
         BaseRequest<MovieRequest> request)
     {
+        // TODO 11 Додати обробку помилок в API
+        var titleExists = await dbContext.Movies
+            .AnyAsync(m => m.Title == request.Data.Title);
+
+        if (titleExists)
+        {
+            logger.Warning("Serilog | Movie with Title '{Title}' already exists",
+                request.Data.Title);
+
+            return BadRequest(BaseResponse.BadRequest("Movie title is already in use"));
+        }
+
         var movie = mapper.Map<Movie>(request.Data);
 
         dbContext.Movies.Add(movie);
@@ -110,7 +166,30 @@ public sealed partial class MoviesController
     public async Task<ActionResult<BaseResponse<ICollection<int>>>> CreateMoviesV2(
         BaseRequest<ICollection<MovieRequest>> request)
     {
-        var movies = request.Data.Select(mapper.Map<Movie>).ToList();
+        var requestedTitles = request.Data.Select(m => m.Title).ToList();
+
+        // TODO 11 Додати обробку помилок в API
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        var existingTitles = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m => requestedTitles.Contains(m.Title))
+            .Select(m => m.Title)
+            .ToListAsync();
+
+        var duplicateTitles = requestedTitles.Intersect(existingTitles).ToList();
+
+        if (duplicateTitles.Count != 0)
+        {
+            logger.Warning("Serilog | Some movie titles already exist: {Titles}",
+                string.Join(", ", duplicateTitles));
+
+            return BadRequest(BaseResponse.BadRequest(
+                $"Some movie titles are already in use: {string.Join(", ", duplicateTitles)}"));
+        }
+
+        var movies = request.Data
+            .Select(mapper.Map<Movie>)
+            .ToList();
 
         dbContext.Movies.AddRange(movies);
 
@@ -118,12 +197,14 @@ public sealed partial class MoviesController
 
         await dbContext.SaveChangesAsync();
 
-        var ids = movies.Select(m => m.Id).ToList();
+        var ids = movies
+            .Select(m => m.Id)
+            .ToList();
 
         return Ok(BaseResponse.Created(ids, "Movies were created successfully"));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> UpdateMovieV2(int id,
         BaseRequest<MovieRequest> request)
@@ -132,11 +213,21 @@ public sealed partial class MoviesController
 
         var movie = await dbContext.Movies.FindAsync(id);
 
-        if (movie is null)
+        if (movie == null)
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
+        }
+
+        var titleExists = await dbContext.Movies
+            .AnyAsync(m => m.Title == request.Data.Title && m.Id != id);
+
+        if (titleExists)
+        {
+            logger.Warning("Serilog | Movie with Title '{Title}' already exists",
+                request.Data.Title);
+            return BadRequest(BaseResponse.BadRequest("Movie title is already in use"));
         }
 
         movie.Title = request.Data.Title;
@@ -152,7 +243,7 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok("Movie by ID was updated successfully"));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> DeleteMovieV2(BaseRequest request, int id)
     {
@@ -160,7 +251,7 @@ public sealed partial class MoviesController
 
         var movie = await dbContext.Movies.FindAsync(id);
 
-        if (movie is null)
+        if (movie == null)
         {
             logger.Warning("Serilog | Movie with ID {Id} not found", id);
 
@@ -179,39 +270,38 @@ public sealed partial class MoviesController
     [HttpDelete]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<string>>> DeleteMoviesV2(
-        BaseRequest<DeleteMoviesRequest> request)
+        BaseRequest<ICollection<int>> request)
     {
-        logger.Information("Serilog | Getting movies with specified IDs {Ids}...",
-            request.Data.Ids);
+        logger.Information("Serilog | Getting movies with specified IDs {Ids}...", request.Data);
 
-        var tuples = await dbContext.Movies
-            .Where(m => request.Data.Ids.Contains(m.Id))
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var data = await dbContext.Movies
+            .Where(m => request.Data.Contains(m.Id))
             .Select(m => new
             {
                 Movie = m,
-                HasReview = dbContext.Reviews.Any(r => r.MovieId == m.Id)
+                HasReview = m.Reviews.Any()
             })
             .ToListAsync();
 
         var deletedIds = new List<int>();
         var undeletedIds = new List<int>();
 
-        // TODO 7 Додати перевірку, чи є фільми у відгуках, перед видаленням. Якщо є, то не видаляти такий, а виводити попередження, а інші фільми з масиву видалити
-        foreach (var tuple in tuples)
+        foreach (var unit in data)
         {
-            if (tuple.HasReview)
+            if (unit.HasReview)
             {
                 logger.Warning(
                     "Serilog | Movie with ID {Id} cannot be deleted due to possession reviews",
-                    tuple.Movie.Id);
+                    unit.Movie.Id);
 
-                undeletedIds.Add(tuple.Movie.Id);
+                undeletedIds.Add(unit.Movie.Id);
             }
             else
             {
-                dbContext.Movies.Remove(tuple.Movie);
+                dbContext.Movies.Remove(unit.Movie);
 
-                deletedIds.Add(tuple.Movie.Id);
+                deletedIds.Add(unit.Movie.Id);
             }
         }
 
@@ -220,7 +310,8 @@ public sealed partial class MoviesController
         await dbContext.SaveChangesAsync();
 
         var response = BaseResponse.Ok(deletedIds,
-            "Movie by specified IDs in Data were deleted successfully. The exception are movies IDs that have reviews were specified in Meta");
+            "Movie by specified IDs in Data were deleted successfully. " +
+            "The exception are movies IDs that have reviews were specified in Meta");
 
         response.Meta.Add("undeletedIds", undeletedIds);
 
