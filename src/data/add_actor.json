@@ -1,0 +1,13 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": {
+    "fullName": "Benedict Cumberbatch",
+    "birthDate": "1976-07-19",
+    "biography": "Renowned British actor known for his roles in Sherlock, Doctor Strange, and The Imitation Game."
+  }
+}

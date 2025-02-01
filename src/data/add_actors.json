@@ -1,0 +1,110 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": [
+    {
+      "fullName": "Leonardo DiCaprio",
+      "birthDate": "1974-11-11",
+      "biography": "Academy Award-winning actor known for Titanic, Inception, and The Revenant."
+    },
+    {
+      "fullName": "Robert Downey Jr.",
+      "birthDate": "1965-04-04",
+      "biography": "Renowned for his role as Iron Man in the Marvel Cinematic Universe."
+    },
+    {
+      "fullName": "Meryl Streep",
+      "birthDate": "1949-06-22",
+      "biography": "One of the greatest actresses of all time, with multiple Academy Awards."
+    },
+    {
+      "fullName": "Tom Hanks",
+      "birthDate": "1956-07-09",
+      "biography": "Beloved actor known for Forrest Gump, Cast Away, and Saving Private Ryan."
+    },
+    {
+      "fullName": "Scarlett Johansson",
+      "birthDate": "1984-11-22",
+      "biography": "Famous for roles in Lost in Translation, Lucy, and as Black Widow."
+    },
+    {
+      "fullName": "Brad Pitt",
+      "birthDate": "1963-12-18",
+      "biography": "Award-winning actor known for Fight Club, Once Upon a Time in Hollywood, and Troy."
+    },
+    {
+      "fullName": "Jennifer Lawrence",
+      "birthDate": "1990-08-15",
+      "biography": "Oscar-winning actress famous for The Hunger Games and Silver Linings Playbook."
+    },
+    {
+      "fullName": "Christian Bale",
+      "birthDate": "1974-01-30",
+      "biography": "Known for The Dark Knight trilogy, American Psycho, and Vice."
+    },
+    {
+      "fullName": "Natalie Portman",
+      "birthDate": "1981-06-09",
+      "biography": "Academy Award-winning actress for Black Swan, also known for Star Wars."
+    },
+    {
+      "fullName": "Denzel Washington",
+      "birthDate": "1954-12-28",
+      "biography": "Two-time Academy Award winner known for Training Day and Malcolm X."
+    },
+    {
+      "fullName": "Morgan Freeman",
+      "birthDate": "1937-06-01",
+      "biography": "Legendary actor with a distinctive voice, known for The Shawshank Redemption."
+    },
+    {
+      "fullName": "Emma Stone",
+      "birthDate": "1988-11-06",
+      "biography": "Oscar-winning actress famous for La La Land and The Amazing Spider-Man."
+    },
+    {
+      "fullName": "Joaquin Phoenix",
+      "birthDate": "1974-10-28",
+      "biography": "Acclaimed actor known for Joker, Gladiator, and Walk the Line."
+    },
+    {
+      "fullName": "Keanu Reeves",
+      "birthDate": "1964-09-02",
+      "biography": "Beloved for The Matrix, John Wick, and Bill & Ted’s Excellent Adventure."
+    },
+    {
+      "fullName": "Cate Blanchett",
+      "birthDate": "1969-05-14",
+      "biography": "Multi-award-winning actress known for Blue Jasmine, Carol, and The Lord of the Rings."
+    },
+    {
+      "fullName": "Hugh Jackman",
+      "birthDate": "1968-10-12",
+      "biography": "Famous for playing Wolverine in X-Men and starring in The Greatest Showman."
+    },
+    {
+      "fullName": "Angelina Jolie",
+      "birthDate": "1975-06-04",
+      "biography": "Oscar-winning actress and humanitarian known for Girl, Interrupted and Maleficent."
+    },
+    {
+      "fullName": "Ryan Gosling",
+      "birthDate": "1980-11-12",
+      "biography": "Known for La La Land, Drive, and The Notebook."
+    },
+    {
+      "fullName": "Anne Hathaway",
+      "birthDate": "1982-11-12",
+      "biography": "Oscar winner known for Les Misérables, The Devil Wears Prada, and Interstellar."
+    },
+    {
+      "fullName": "Jake Gyllenhaal",
+      "birthDate": "1980-12-19",
+      "biography": "Acclaimed for his roles in Donnie Darko, Nightcrawler, and Brokeback Mountain."
+    }
+  ]
+}
