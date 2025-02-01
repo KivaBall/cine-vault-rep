@@ -1,6 +1,4 @@
-﻿using CineVault.API.Controllers.Reactions;
-
-namespace CineVault.API.Controllers.Reviews;
+﻿namespace CineVault.API.Controllers.Reviews;
 
 public sealed class ReviewResponse
 {

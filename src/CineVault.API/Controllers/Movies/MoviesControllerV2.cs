@@ -5,7 +5,6 @@ public sealed partial class MoviesController
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<MovieResponse>>>> GetMoviesV2(
-        // TODO 3 Реалізувати складні запити, які дозволяють комбінувати кілька критеріїв
         BaseRequest<GetMoviesRequest> request)
     {
         logger.Information("Serilog | Getting movies...");
@@ -106,7 +105,6 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Created(movie.Id, "Movie was created successfully"));
     }
 
-    // TODO 1 Додати реалізацію масового завантаження фільмів
     [HttpPost("several")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<int>>>> CreateMoviesV2(
@@ -178,7 +176,6 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok("Movie by ID was deleted successfully"));
     }
 
-    // TODO 7 Додати реалізацію для масового видалення за списком ID
     [HttpDelete]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<string>>> DeleteMoviesV2(

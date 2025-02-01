@@ -1,5 +1,3 @@
-using CineVault.API.Controllers.Reactions;
-
 namespace CineVault.API.Mappers;
 
 public sealed class ReactionProfile : IRegister
