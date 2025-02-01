@@ -21,7 +21,7 @@ public sealed partial class ReviewsController(
         return Ok(reviews);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult<ReviewResponse>> GetReviewByIdV1(int id)
     {
@@ -59,7 +59,7 @@ public sealed partial class ReviewsController(
         return Created();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> UpdateReviewV1(int id, ReviewRequest request)
     {
@@ -86,7 +86,7 @@ public sealed partial class ReviewsController(
         return Ok();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> DeleteReviewV1(int id)
     {

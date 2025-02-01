@@ -9,32 +9,31 @@ public sealed partial class ReviewsController
     {
         logger.Information("Serilog | Getting reviews...");
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var reviews = await dbContext.Reviews
-            .Include(r => r.Movie)
-            .Include(r => r.User)
-            .Include(r => r.Reactions)
-            .Select(r => mapper.Map<ReviewResponse>(r))
+            .AsNoTracking()
+            .ProjectToType<ReviewResponse>()
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(reviews, "Reviews retrieved successfully"));
     }
 
-    [HttpPost("{id}")]
+    [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ReviewResponse>>> GetReviewByIdV2(
         BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var review = await dbContext.Reviews
-            .Include(r => r.Movie)
-            .Include(r => r.User)
-            .Include(r => r.Reactions)
-            .Where(r => r.Id == id)
-            .Select(r => mapper.Map<ReviewResponse>(r))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<ReviewResponse>()
+            .FirstOrDefaultAsync(r => r.Id == id);
 
-        if (review is null)
+        if (review == null)
         {
             logger.Warning("Serilog | Review with ID {Id} not found", id);
 
@@ -57,36 +56,39 @@ public sealed partial class ReviewsController
             return BadRequest(BaseResponse.BadRequest("Review rating is not in correct span"));
         }
 
-        var movieExists = await dbContext.Movies.AnyAsync(m => m.Id == request.Data.MovieId);
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var data = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m => m.Id == request.Data.MovieId)
+            .Select(m => new
+            {
+                UserExists = dbContext.Users
+                    .Any(u => u.Id == request.Data.UserId),
+                ReviewExists = dbContext.Reviews
+                    .Any(r => r.MovieId == request.Data.MovieId && r.UserId == request.Data.UserId)
+            })
+            .FirstOrDefaultAsync();
 
-        if (!movieExists)
+        if (data == null)
         {
             logger.Warning("Serilog | Specified movie ID cannot be found");
 
             return BadRequest(BaseResponse.BadRequest("Specified movie ID cannot be found"));
         }
 
-        var userExists = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
-
-        if (!userExists)
+        if (!data.UserExists)
         {
             logger.Warning("Serilog | Specified user ID cannot be found");
 
             return BadRequest(BaseResponse.BadRequest("Specified user ID cannot be found"));
         }
 
-        // TODO 6 Заборонити можливість в межах одного фільму певного користувача постити 1 відгук та проставляти 1 оцінку (рейтинг). Якщо такий відгук проставлений, то оновити його
-        var reviewExists = await dbContext.Reviews
-            .AnyAsync(r =>
-                r.MovieId == request.Data.MovieId &&
-                r.UserId == request.Data.UserId);
+        var review = mapper.Map<Review>(request.Data);
 
-        // TODO 6 Якщо такий відгук проставлений, то оновити його
-        if (reviewExists)
+        if (data.ReviewExists)
         {
-            var updatedReview = mapper.Map<Review>(request.Data);
-
-            dbContext.Reviews.Update(updatedReview);
+            dbContext.Reviews.Update(review);
 
             logger.Information("Serilog | Updating review...");
 
@@ -94,8 +96,6 @@ public sealed partial class ReviewsController
 
             return Ok(BaseResponse.Ok("Review was updated successfully"));
         }
-
-        var review = mapper.Map<Review>(request.Data);
 
         dbContext.Reviews.Add(review);
 
@@ -106,25 +106,24 @@ public sealed partial class ReviewsController
         return Ok(BaseResponse.Created(review.Id, "Review was created successfully"));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> UpdateReviewV2(int id,
         BaseRequest<ReviewRequest> request)
     {
         if (request.Data.Rating is < 1 or > 10)
         {
-            logger.Warning(
-                "Serilog | Review with ID {Id} has rating out of range - {Rating}",
-                id, request.Data.Rating);
+            logger.Warning("Serilog | Review with ID {Id} has rating out of range - {Rating}", id,
+                request.Data.Rating);
 
-            return NotFound(BaseResponse.BadRequest("Review rating is not in correct span"));
+            return BadRequest(BaseResponse.BadRequest("Review rating is not in correct span"));
         }
 
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
         var review = await dbContext.Reviews.FindAsync(id);
 
-        if (review is null)
+        if (review == null)
         {
             logger.Warning("Serilog | Review with ID {Id} not found", id);
 
@@ -143,7 +142,7 @@ public sealed partial class ReviewsController
         return Ok(BaseResponse.Ok("Review by ID was updated successfully"));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> DeleteReviewV2(BaseRequest request, int id)
     {
@@ -151,7 +150,7 @@ public sealed partial class ReviewsController
 
         var review = await dbContext.Reviews.FindAsync(id);
 
-        if (review is null)
+        if (review == null)
         {
             logger.Warning("Serilog | Review with ID {Id} not found", id);
 
