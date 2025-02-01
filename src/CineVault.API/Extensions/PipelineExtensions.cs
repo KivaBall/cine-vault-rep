@@ -38,4 +38,14 @@ public static class PipelineExtensions
             opt.SwaggerEndpoint("v2/swagger.json", "CineVault 'KitKat' API V2");
         });
     }
+
+    public static void ConfigureDb(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<CineVaultDbContext>();
+
+        // TODO 3 Реалізувати логіку автоматичного створення бази даних за відсутності, використовуючи EnsureCreated().
+        dbContext.Database.EnsureCreated();
+    }
 }
