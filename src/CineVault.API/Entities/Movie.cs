@@ -19,4 +19,5 @@ public sealed class Movie : BaseEntity
     public DateOnly? ReleaseDate { get; set; }
 
     public ICollection<Review> Reviews { get; } = []; // NavProperty
+    public ICollection<Actor> Actors { get; } = []; // NavProperty
 }
