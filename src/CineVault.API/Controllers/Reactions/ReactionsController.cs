@@ -6,19 +6,21 @@ public sealed class ReactionsController(
     IMapper mapper)
     : BaseController
 {
-    [HttpPost("{id}")]
+    [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ReactionResponse>>> GetReactionByIdV2(
         BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting reaction with ID {Id}...", id);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var reaction = await dbContext.Reactions
-            .Where(r => r.Id == id)
-            .Select(r => mapper.Map<ReactionResponse>(r))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<ReactionResponse>()
+            .FirstOrDefaultAsync(r => r.Id == id);
 
-        if (reaction is null)
+        if (reaction == null)
         {
             logger.Warning("Serilog | Reaction with ID {Id} not found", id);
 
@@ -33,37 +35,39 @@ public sealed class ReactionsController(
     public async Task<ActionResult<BaseResponse<int>>> CreateReactionV2(
         BaseRequest<ReactionRequest> request)
     {
-        var reviewExists = await dbContext.Reviews.AnyAsync(m => m.Id == request.Data.ReviewId);
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var data = await dbContext.Reviews
+            .AsNoTracking()
+            .Where(r => r.Id == request.Data.ReviewId)
+            .Select(r => new
+            {
+                UserExists = dbContext.Users.Any(u => u.Id == request.Data.UserId),
+                ReactionExists = dbContext.Reactions.Any(r2 =>
+                    r2.ReviewId == request.Data.ReviewId && r2.UserId == request.Data.UserId)
+            })
+            .FirstOrDefaultAsync();
 
-        if (!reviewExists)
+        if (data == null)
         {
             logger.Warning("Serilog | Specified review ID cannot be found");
 
-            return BadRequest(BaseResponse.BadRequest(
-                "Specified review ID cannot be found"));
+            return BadRequest(BaseResponse.BadRequest("Specified review ID cannot be found"));
         }
 
-        var userExists = await dbContext.Users.AnyAsync(u => u.Id == request.Data.UserId);
-
-        if (!userExists)
+        if (!data.UserExists)
         {
             logger.Warning("Serilog | Specified user ID cannot be found");
 
-            return BadRequest(BaseResponse.BadRequest(
-                "Specified user ID cannot be found"));
+            return BadRequest(BaseResponse.BadRequest("Specified user ID cannot be found"));
         }
 
-        var reactionExists = await dbContext.Reactions
-            .AnyAsync(r =>
-                r.ReviewId == request.Data.ReviewId &&
-                r.UserId == request.Data.UserId);
-
-        if (reactionExists)
+        if (!data.ReactionExists)
         {
             logger.Warning("Serilog | Reaction for such User and Review IDs has been existed");
 
-            return BadRequest(BaseResponse.BadRequest(
-                "Reaction for such User and Review IDs has been existed"));
+            return BadRequest(
+                BaseResponse.BadRequest("Reaction for such User and Review IDs has been existed"));
         }
 
         var reaction = mapper.Map<Reaction>(request.Data);
@@ -77,7 +81,7 @@ public sealed class ReactionsController(
         return Ok(BaseResponse.Created(reaction.Id, "Reaction was created successfully"));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> UpdateReactionV2(int id,
         BaseRequest<ReactionRequest> request)
@@ -86,7 +90,7 @@ public sealed class ReactionsController(
 
         var reaction = await dbContext.Reactions.FindAsync(id);
 
-        if (reaction is null)
+        if (reaction == null)
         {
             logger.Warning("Serilog | Reaction with ID {Id} not found", id);
 
@@ -98,7 +102,7 @@ public sealed class ReactionsController(
             logger.Warning("Serilog | Reaction with ID {Id} have already had such a reaction", id);
 
             return BadRequest(
-                BaseResponse.BadRequest("Reaction with ID {Id} has already had such a reaction"));
+                BaseResponse.BadRequest("Reaction with ID has already had such a reaction"));
         }
 
         reaction.IsLike = request.Data.IsLike;
@@ -110,15 +114,16 @@ public sealed class ReactionsController(
         return Ok(BaseResponse.Ok("Reaction by ID was updated successfully"));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> DeleteReactionV2(BaseRequest request, int id)
     {
         logger.Information("Serilog | Getting reaction with ID {Id}...", id);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         var reaction = await dbContext.Reactions.FindAsync(id);
 
-        if (reaction is null)
+        if (reaction == null)
         {
             logger.Warning("Serilog | Reaction with ID {Id} not found", id);
 
