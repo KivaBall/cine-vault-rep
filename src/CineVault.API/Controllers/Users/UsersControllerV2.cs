@@ -9,57 +9,43 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting users...");
 
-        var query = dbContext.Users.AsQueryable();
-
-        // TODO 2 Реалізувати фільтрацію за датою створення та сортування результатів
-        if (request.Data.MinCreatedDate != null)
-        {
-            query = query.Where(u => u.CreatedAt >= request.Data.MinCreatedDate);
-        }
-
-        if (request.Data.MaxCreatedDate != null)
-        {
-            query = query.Where(u => u.CreatedAt <= request.Data.MaxCreatedDate);
-        }
-
-        if (request.Data.SortByAsc != null)
-        {
-            if ((bool)request.Data.SortByAsc)
-            {
-                query = query.OrderBy(u => u.CreatedAt);
-            }
-            else
-            {
-                query = query.OrderByDescending(u => u.CreatedAt);
-            }
-        }
-
-        // TODO 2 Додати пагінацію для результатів пошуку
-        var userAmount = request.Data.UsersPerPage ?? 10;
-        var page = request.Data.Page ?? 1;
-
-        var users = await query
-            .Skip(userAmount * (page - 1))
-            .Take(userAmount)
-            .Select(u => mapper.Map<UserResponse>(u))
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var users = await dbContext.Users
+            .AsNoTracking()
+            .Where(u =>
+                request.Data.MinCreatedDate == null
+                || u.CreatedAt >= request.Data.MinCreatedDate)
+            .Where(u =>
+                request.Data.MaxCreatedDate == null
+                || u.CreatedAt <= request.Data.MaxCreatedDate)
+            .OrderBy(u =>
+                request.Data.SortByAsc == true ? u.CreatedAt.Ticks :
+                request.Data.SortByAsc == false ? -u.CreatedAt.Ticks : 0)
+            .Skip((request.Data.UsersPerPage ?? 10) * ((request.Data.Page ?? 1) - 1))
+            .Take(request.Data.UsersPerPage ?? 10)
+            .ProjectToType<UserResponse>()
             .ToListAsync();
 
         return Ok(BaseResponse.Ok(users, "Users retrieved successfully"));
     }
 
-    [HttpPost("{id}")]
+    [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByIdV2(BaseRequest request,
         int id)
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
-            .Where(u => u.Id == id)
-            .Select(u => mapper.Map<UserResponse>(u))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<UserResponse>()
+            .FirstOrDefaultAsync(u => u.Id == id);
 
-        if (user is null)
+        if (user == null)
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
@@ -69,24 +55,23 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by ID retrieved successfully"));
     }
 
-    // TODO 2  Додати можливість пошуку користувачів за username або email
     [HttpPost("username")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByUsernameV2(
-        BaseRequest<GetUserByUsernameRequest> request)
+        BaseRequest<string> request)
     {
-        logger.Information("Serilog | Getting user with username {Username}...",
-            request.Data.Username);
+        logger.Information("Serilog | Getting user with username {Username}...", request.Data);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
-            .Where(u => u.Username == request.Data.Username)
-            .Select(u => mapper.Map<UserResponse>(u))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<UserResponse>()
+            .FirstOrDefaultAsync(u => u.Username == request.Data);
 
-        if (user is null)
+        if (user == null)
         {
-            logger.Warning("Serilog | User with username {Username} not found",
-                request.Data.Username);
+            logger.Warning("Serilog | User with username {Username} not found", request.Data);
 
             return NotFound(BaseResponse.NotFound("User by username was not found"));
         }
@@ -94,22 +79,23 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by username retrieved successfully"));
     }
 
-    // TODO 2  Додати можливість пошуку користувачів за username або email
     [HttpPost("email")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserResponse>>> GetUserByEmailV2(
-        BaseRequest<GetUserByEmailRequest> request)
+        BaseRequest<string> request)
     {
-        logger.Information("Serilog | Getting user with email {Email}...", request.Data.Email);
+        logger.Information("Serilog | Getting user with email {Email}...", request.Data);
 
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
-            .Where(u => u.Email == request.Data.Email)
-            .Select(u => mapper.Map<UserResponse>(u))
-            .FirstOrDefaultAsync();
+            .AsNoTracking()
+            .ProjectToType<UserResponse>()
+            .FirstOrDefaultAsync(u => u.Email == request.Data);
 
-        if (user is null)
+        if (user == null)
         {
-            logger.Warning("Serilog | User with email {Email} not found", request.Data.Email);
+            logger.Warning("Serilog | User with email {Email} not found", request.Data);
 
             return NotFound(BaseResponse.NotFound("User by email was not found"));
         }
@@ -117,11 +103,67 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by email retrieved successfully"));
     }
 
+    // TODO 9 Додати такі нові методи в API
+    [HttpPost("{id:int}/user-stats")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<UserStats>>> GetUserStatsV2(BaseRequest request,
+        int id)
+    {
+        logger.Information("Serilog | Getting user with ID {Id}...", id);
+
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
+        var user = await dbContext.Users
+            .AsNoTracking()
+            .ProjectToType<UserStats>()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
+            return NotFound(BaseResponse.NotFound("User by ID was not found"));
+        }
+
+        return Ok(BaseResponse.Ok(user, "User stats by ID retrieved successfully"));
+    }
+
     [HttpPost]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<int>>> CreateUserV2(
         BaseRequest<UserRequest> request)
     {
+        // TODO 11 Додати обробку помилок в API
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var data = await dbContext.Users
+            .AsNoTracking()
+            .Where(u => u.Username == request.Data.Username || u.Email == request.Data.Email)
+            .Select(u => new
+            {
+                UsernameExists = u.Username == request.Data.Username,
+                EmailExists = u.Email == request.Data.Email
+            })
+            .FirstOrDefaultAsync();
+
+        if (data != null)
+        {
+            if (data.UsernameExists)
+            {
+                logger.Warning("Serilog | Username '{Username}' already exists",
+                    request.Data.Username);
+
+                return BadRequest(BaseResponse.BadRequest("Username is already in use"));
+            }
+
+            if (data.EmailExists)
+            {
+                logger.Warning("Serilog | Email '{Email}' already exists", request.Data.Email);
+
+                return BadRequest(BaseResponse.BadRequest("Email is already in use"));
+            }
+        }
+
         var user = mapper.Map<User>(request.Data);
 
         dbContext.Users.Add(user);
@@ -133,7 +175,7 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Created(user.Id, "User was created successfully"));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> UpdateUserV2(int id,
         BaseRequest<UserRequest> request)
@@ -142,11 +184,43 @@ public sealed partial class UsersController
 
         var user = await dbContext.Users.FindAsync(id);
 
-        if (user is null)
+        if (user == null)
         {
             logger.Warning("Serilog | User with ID {Id} not found", id);
 
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
+        }
+
+        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
+        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
+        var data = await dbContext.Users
+            .AsNoTracking()
+            .Where(u =>
+                (u.Username == request.Data.Username || u.Email == request.Data.Email) &&
+                u.Id != id)
+            .Select(u => new
+            {
+                UsernameExists = u.Username == request.Data.Username,
+                EmailExists = u.Email == request.Data.Email
+            })
+            .FirstOrDefaultAsync();
+
+        if (data != null)
+        {
+            if (data.UsernameExists)
+            {
+                logger.Warning("Serilog | Username '{Username}' already exists",
+                    request.Data.Username);
+
+                return BadRequest(BaseResponse.BadRequest("Username is already in use"));
+            }
+
+            if (data.EmailExists)
+            {
+                logger.Warning("Serilog | Email '{Email}' already exists", request.Data.Email);
+
+                return BadRequest(BaseResponse.BadRequest("Email is already in use"));
+            }
         }
 
         user.Username = request.Data.Username;
@@ -160,7 +234,7 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok("User by ID was updated successfully"));
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> DeleteUserV2(BaseRequest request, int id)
     {
@@ -182,5 +256,41 @@ public sealed partial class UsersController
         await dbContext.SaveChangesAsync();
 
         return Ok(BaseResponse.Ok("User by ID was deleted successfully"));
+    }
+
+    // TODO 10 Покажіть приклад, коли потрібно ігнорувати даний глобальний фільтр
+    [HttpPut("{id:int}/restore")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse>> RestoreUserV2(BaseRequest request, int id)
+    {
+        logger.Information("Serilog | Getting deleted user with ID {Id}...", id);
+
+        var user = await dbContext.Users
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(u => u.Id == id);
+
+        if (user == null)
+        {
+            logger.Warning("Serilog | User with ID {Id} not found", id);
+
+            return NotFound(BaseResponse.NotFound("User by ID was not found"));
+        }
+
+        if (!user.IsDeleted)
+        {
+            logger.Warning("Serilog | User with ID {Id} not deleted", id);
+
+            return BadRequest(BaseResponse.BadRequest("User by ID was not deleted"));
+        }
+
+        user.IsDeleted = false;
+
+        dbContext.Users.Update(user);
+
+        logger.Information("Serilog | Restoring user...");
+
+        await dbContext.SaveChangesAsync();
+
+        return Ok(BaseResponse.Ok("User by ID was restored successfully"));
     }
 }

@@ -19,7 +19,7 @@ public sealed partial class UsersController(
         return Ok(users);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult<UserResponse>> GetUserByIdV1(int id)
     {
@@ -54,7 +54,7 @@ public sealed partial class UsersController(
         return Ok();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> UpdateUserV1(int id, UserRequest request)
     {
@@ -80,7 +80,7 @@ public sealed partial class UsersController(
         return Ok();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     [MapToApiVersion(1)]
     public async Task<ActionResult> DeleteUserV1(int id)
     {
