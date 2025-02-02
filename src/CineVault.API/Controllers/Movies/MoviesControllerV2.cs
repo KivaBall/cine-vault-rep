@@ -259,7 +259,7 @@ public sealed partial class MoviesController
         }
 
         movie.IsDeleted = true;
-        
+
         dbContext.Movies.Update(movie);
 
         logger.Information("Serilog | Deleting movie...");
@@ -302,7 +302,7 @@ public sealed partial class MoviesController
             else
             {
                 unit.Movie.IsDeleted = true;
-                
+
                 dbContext.Movies.Update(unit.Movie);
 
                 deletedIds.Add(unit.Movie.Id);

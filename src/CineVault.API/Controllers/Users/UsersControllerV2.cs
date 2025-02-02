@@ -250,7 +250,7 @@ public sealed partial class UsersController
         }
 
         user.IsDeleted = true;
-        
+
         dbContext.Users.Update(user);
 
         logger.Information("Serilog | Deleting user...");

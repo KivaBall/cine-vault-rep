@@ -131,7 +131,7 @@ public sealed class ReactionsController(
         }
 
         reaction.IsDeleted = true;
-        
+
         dbContext.Reactions.Update(reaction);
 
         logger.Information("Serilog | Deleting reaction...");

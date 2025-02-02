@@ -172,7 +172,7 @@ public sealed class ActorsController(
         }
 
         actor.IsDeleted = true;
-        
+
         dbContext.Actors.Update(actor);
 
         logger.Information("Serilog | Deleting actor...");

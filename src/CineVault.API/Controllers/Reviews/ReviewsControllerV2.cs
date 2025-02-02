@@ -158,7 +158,7 @@ public sealed partial class ReviewsController
         }
 
         review.IsDeleted = true;
-        
+
         dbContext.Reviews.Update(review);
 
         logger.Information("Serilog | Deleting review...");
