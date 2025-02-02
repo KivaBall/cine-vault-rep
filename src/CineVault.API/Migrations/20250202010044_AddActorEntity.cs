@@ -15,7 +15,7 @@ namespace CineVault.API.Migrations
                 name: "Actors",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ActorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FullName = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     BirthDate = table.Column<DateOnly>(type: "date", nullable: false),
@@ -24,7 +24,7 @@ namespace CineVault.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("ActorId", x => x.Id);
+                    table.PrimaryKey("PK_Actors", x => x.ActorId);
                 });
 
             migrationBuilder.CreateTable(
@@ -41,13 +41,13 @@ namespace CineVault.API.Migrations
                         name: "FK_ActorMovie_Actors_ActorsId",
                         column: x => x.ActorsId,
                         principalTable: "Actors",
-                        principalColumn: "Id",
+                        principalColumn: "ActorId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ActorMovie_Movies_MoviesId",
                         column: x => x.MoviesId,
                         principalTable: "Movies",
-                        principalColumn: "Id",
+                        principalColumn: "MovieId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

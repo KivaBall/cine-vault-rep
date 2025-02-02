@@ -5,8 +5,8 @@ public sealed class MovieConfiguration : IEntityTypeConfiguration<Movie>
     public void Configure(EntityTypeBuilder<Movie> builder)
     {
         // TODO 4 Зробити три зміни на власний розсуд в структурі бази даних та створити міграцію
-        builder.HasKey(x => x.Id)
-            .HasName("MovieId");
+        builder.Property(m => m.Id)
+            .HasColumnName("MovieId");
 
         // TODO 10 Налаштувати фільтри на рівні DbContext, щоб виключати видалені записи з запитів
         builder.HasQueryFilter(m => !m.IsDeleted);

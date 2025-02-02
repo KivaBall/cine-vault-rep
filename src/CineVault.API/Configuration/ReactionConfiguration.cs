@@ -5,8 +5,8 @@ public sealed class ReactionConfiguration : IEntityTypeConfiguration<Reaction>
     public void Configure(EntityTypeBuilder<Reaction> builder)
     {
         // TODO 4 Зробити три зміни на власний розсуд в структурі бази даних та створити міграцію
-        builder.HasKey(x => x.Id)
-            .HasName("ReactionId");
+        builder.Property(m => m.Id)
+            .HasColumnName("ReactionId");
 
         // TODO 10 Налаштувати фільтри на рівні DbContext, щоб виключати видалені записи з запитів
         builder.HasQueryFilter(r => !r.IsDeleted);

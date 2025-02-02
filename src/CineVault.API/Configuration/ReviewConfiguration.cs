@@ -5,8 +5,8 @@ public sealed class ReviewConfiguration : IEntityTypeConfiguration<Review>
     public void Configure(EntityTypeBuilder<Review> builder)
     {
         // TODO 4 Зробити три зміни на власний розсуд в структурі бази даних та створити міграцію
-        builder.HasKey(x => x.Id)
-            .HasName("ReviewId");
+        builder.Property(m => m.Id)
+            .HasColumnName("ReviewId");
 
         // TODO 10 Налаштувати фільтри на рівні DbContext, щоб виключати видалені записи з запитів
         builder.HasQueryFilter(r => !r.IsDeleted);
