@@ -171,7 +171,9 @@ public sealed class ActorsController(
             return NotFound(BaseResponse.NotFound("Actor by ID was not found"));
         }
 
-        dbContext.Actors.Remove(actor);
+        actor.IsDeleted = true;
+        
+        dbContext.Actors.Update(actor);
 
         logger.Information("Serilog | Deleting actor...");
 

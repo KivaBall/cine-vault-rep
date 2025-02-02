@@ -37,8 +37,8 @@ public sealed partial class MoviesController
                 request.Data.MaxAvgRating == null
                 || (m.Reviews.Count != 0 ? m.Reviews.Average(r => r.Rating) : 0) <=
                 request.Data.MaxAvgRating)
-            .Skip((request.Data.UsersPerPage ?? 10) * ((request.Data.Page ?? 1) - 1))
-            .Take(request.Data.UsersPerPage ?? 10)
+            .Skip((request.Data.MoviesPerPage ?? 10) * ((request.Data.Page ?? 1) - 1))
+            .Take(request.Data.MoviesPerPage ?? 10)
             .ProjectToType<MovieResponse>()
             .ToListAsync();
 
@@ -258,7 +258,9 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        dbContext.Movies.Remove(movie);
+        movie.IsDeleted = true;
+        
+        dbContext.Movies.Update(movie);
 
         logger.Information("Serilog | Deleting movie...");
 
@@ -299,7 +301,9 @@ public sealed partial class MoviesController
             }
             else
             {
-                dbContext.Movies.Remove(unit.Movie);
+                unit.Movie.IsDeleted = true;
+                
+                dbContext.Movies.Update(unit.Movie);
 
                 deletedIds.Add(unit.Movie.Id);
             }

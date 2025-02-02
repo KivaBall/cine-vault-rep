@@ -157,7 +157,9 @@ public sealed partial class ReviewsController
             return NotFound(BaseResponse.NotFound("Review by ID was not found"));
         }
 
-        dbContext.Reviews.Remove(review);
+        review.IsDeleted = true;
+        
+        dbContext.Reviews.Update(review);
 
         logger.Information("Serilog | Deleting review...");
 

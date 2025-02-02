@@ -130,7 +130,9 @@ public sealed class ReactionsController(
             return NotFound(BaseResponse.NotFound("Reaction by ID was not found"));
         }
 
-        dbContext.Reactions.Remove(reaction);
+        reaction.IsDeleted = true;
+        
+        dbContext.Reactions.Update(reaction);
 
         logger.Information("Serilog | Deleting reaction...");
 

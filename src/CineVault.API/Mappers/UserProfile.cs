@@ -19,7 +19,7 @@ public sealed class UserProfile : IRegister
                     .Where(r => r.Movie.Genre != null)
                     .GroupBy(r => r.Movie.Genre)
                     .OrderByDescending(g => g.Count())
-                    .Take(5)
+                    .Take(3)
                     .Select(g => g.Key)
                     .ToList())
             .Map(u => u.LastActivity,

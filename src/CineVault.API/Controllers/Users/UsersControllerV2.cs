@@ -249,7 +249,9 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        dbContext.Users.Remove(user);
+        user.IsDeleted = true;
+        
+        dbContext.Users.Update(user);
 
         logger.Information("Serilog | Deleting user...");
 
