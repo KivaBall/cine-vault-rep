@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CineVault.API.Migrations
 {
     [DbContext(typeof(CineVaultDbContext))]
-    [Migration("20250201213834_AdjustIdEntitiesNames")]
-    partial class AdjustIdEntitiesNames
+    [Migration("20250202005628_InitialDb")]
+    partial class InitialDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,8 +52,7 @@ namespace CineVault.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id")
-                        .HasName("MovieId");
+                    b.HasKey("Id");
 
                     b.ToTable("Movies");
                 });
@@ -78,8 +77,7 @@ namespace CineVault.API.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id")
-                        .HasName("ReactionId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ReviewId");
 
@@ -114,8 +112,7 @@ namespace CineVault.API.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id")
-                        .HasName("ReviewId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MovieId");
 
@@ -150,8 +147,7 @@ namespace CineVault.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id")
-                        .HasName("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("Users");
                 });
@@ -167,7 +163,7 @@ namespace CineVault.API.Migrations
                     b.HasOne("CineVault.API.Entities.User", "User")
                         .WithMany("Reactions")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Review");

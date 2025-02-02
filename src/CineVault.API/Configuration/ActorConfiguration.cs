@@ -5,8 +5,8 @@ public sealed class ActorConfiguration : IEntityTypeConfiguration<Actor>
     public void Configure(EntityTypeBuilder<Actor> builder)
     {
         // TODO 4 Зробити три зміни на власний розсуд в структурі бази даних та створити міграцію
-        builder.HasKey(x => x.Id)
-            .HasName("ActorId");
+        builder.Property(m => m.Id)
+            .HasColumnName("ActorId");
 
         // TODO 10 Налаштувати фільтри на рівні DbContext, щоб виключати видалені записи з запитів
         builder.HasQueryFilter(a => !a.IsDeleted);

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
-// TODO 2 Створити початкову міграцію, яка додасть базові таблиці 
+
 namespace CineVault.API.Migrations
 {
     /// <inheritdoc />
@@ -101,7 +101,7 @@ namespace CineVault.API.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
