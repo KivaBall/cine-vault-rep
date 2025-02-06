@@ -2,20 +2,6 @@
 
 public sealed partial class ReviewsController
 {
-    private static readonly Func<CineVaultDbContext, int, int, Task<ReviewCheckResult?>>
-        GetReviewCheck = EF.CompileAsyncQuery(
-            (CineVaultDbContext context, int movieId, int userId) =>
-                context.Reviews
-                    .AsNoTracking()
-                    .Where(m => m.Id == movieId)
-                    .Select(m => new ReviewCheckResult(
-                        context.Users
-                            .Any(u => u.Id == userId),
-                        context.Reviews
-                            .Any(r => r.MovieId == movieId && r.UserId == userId)
-                    ))
-                    .FirstOrDefault());
-
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<ReviewResponse>>>> GetReviewsV2(
@@ -56,6 +42,22 @@ public sealed partial class ReviewsController
 
         return Ok(BaseResponse.Ok(review, "Review by ID retrieved successfully"));
     }
+
+    private static readonly Func<CineVaultDbContext, int, int, Task<ReviewCheckResult?>>
+        GetReviewCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, int movieId, int userId) =>
+                context.Reviews
+                    .AsNoTracking()
+                    .Where(m => m.Id == movieId)
+                    .Select(m => new ReviewCheckResult(
+                        context.Users
+                            .Any(u => u.Id == userId),
+                        context.Reviews
+                            .Any(r => r.MovieId == movieId && r.UserId == userId)
+                    ))
+                    .FirstOrDefault());
+
+    private record ReviewCheckResult(bool UserExists, bool ReviewExists);
 
     [HttpPost]
     [MapToApiVersion(2)]
@@ -172,6 +174,4 @@ public sealed partial class ReviewsController
 
         return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));
     }
-
-    private record ReviewCheckResult(bool UserExists, bool ReviewExists);
 }

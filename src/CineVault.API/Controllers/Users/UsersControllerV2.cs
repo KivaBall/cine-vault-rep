@@ -2,18 +2,6 @@
 
 public sealed partial class UsersController
 {
-    private static readonly Func<CineVaultDbContext, string, string, Task<UserCheckResult?>>
-        GetUserCheck = EF.CompileAsyncQuery(
-            (CineVaultDbContext context, string username, string email) =>
-                context.Users
-                    .AsNoTracking()
-                    .Where(u => u.Username == username || u.Email == email)
-                    .Select(u => new UserCheckResult(
-                        u.Username == username,
-                        u.Email == email
-                    ))
-                    .FirstOrDefault());
-
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2(
@@ -139,6 +127,20 @@ public sealed partial class UsersController
 
         return Ok(BaseResponse.Ok(user, "User stats by ID retrieved successfully"));
     }
+
+    private static readonly Func<CineVaultDbContext, string, string, Task<UserCheckResult?>>
+        GetUserCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, string username, string email) =>
+                context.Users
+                    .AsNoTracking()
+                    .Where(u => u.Username == username || u.Email == email)
+                    .Select(u => new UserCheckResult(
+                        u.Username == username,
+                        u.Email == email
+                    ))
+                    .FirstOrDefault());
+
+    private record UserCheckResult(bool UsernameExists, bool EmailExists);
 
     [HttpPost]
     [MapToApiVersion(2)]
@@ -300,6 +302,4 @@ public sealed partial class UsersController
 
         return Ok(BaseResponse.Ok("User by ID was restored successfully"));
     }
-
-    private record UserCheckResult(bool UsernameExists, bool EmailExists);
 }
