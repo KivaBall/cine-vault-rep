@@ -6,6 +6,20 @@ public sealed class ReactionsController(
     IMapper mapper)
     : BaseController
 {
+    private static readonly Func<CineVaultDbContext, int, int, Task<ReactionCheckResult?>>
+        GetReactionCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, int reviewId, int userId) =>
+                context.Reviews
+                    .AsNoTracking()
+                    .Where(r => r.Id == reviewId)
+                    .Select(r => new ReactionCheckResult(
+                        context.Users
+                            .Any(u => u.Id == userId),
+                        context.Reactions.Any(r2 =>
+                            r2.ReviewId == reviewId && r2.UserId == userId)
+                    ))
+                    .FirstOrDefault());
+
     [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ReactionResponse>>> GetReactionByIdV2(
@@ -37,16 +51,8 @@ public sealed class ReactionsController(
     {
         // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        var data = await dbContext.Reviews
-            .AsNoTracking()
-            .Where(r => r.Id == request.Data.ReviewId)
-            .Select(r => new
-            {
-                UserExists = dbContext.Users.Any(u => u.Id == request.Data.UserId),
-                ReactionExists = dbContext.Reactions.Any(r2 =>
-                    r2.ReviewId == request.Data.ReviewId && r2.UserId == request.Data.UserId)
-            })
-            .FirstOrDefaultAsync();
+        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
+        var data = await GetReactionCheck(dbContext, request.Data.ReviewId, request.Data.UserId);
 
         if (data == null)
         {
@@ -62,7 +68,7 @@ public sealed class ReactionsController(
             return BadRequest(BaseResponse.BadRequest("Specified user ID cannot be found"));
         }
 
-        if (!data.ReactionExists)
+        if (data.ReactionExists)
         {
             logger.Warning("Serilog | Reaction for such User and Review IDs has been existed");
 
@@ -140,4 +146,6 @@ public sealed class ReactionsController(
 
         return Ok(BaseResponse.Ok("Reaction by ID was deleted successfully"));
     }
+
+    private record ReactionCheckResult(bool UserExists, bool ReactionExists);
 }

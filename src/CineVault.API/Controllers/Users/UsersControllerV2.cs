@@ -2,6 +2,18 @@
 
 public sealed partial class UsersController
 {
+    private static readonly Func<CineVaultDbContext, string, string, Task<UserCheckResult?>>
+        GetUserCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, string username, string email) =>
+                context.Users
+                    .AsNoTracking()
+                    .Where(u => u.Username == username || u.Email == email)
+                    .Select(u => new UserCheckResult(
+                        u.Username == username,
+                        u.Email == email
+                    ))
+                    .FirstOrDefault());
+
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<UserResponse>>>> GetUsersV2(
@@ -136,15 +148,8 @@ public sealed partial class UsersController
         // TODO 11 Додати обробку помилок в API
         // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        var data = await dbContext.Users
-            .AsNoTracking()
-            .Where(u => u.Username == request.Data.Username || u.Email == request.Data.Email)
-            .Select(u => new
-            {
-                UsernameExists = u.Username == request.Data.Username,
-                EmailExists = u.Email == request.Data.Email
-            })
-            .FirstOrDefaultAsync();
+        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
+        var data = await GetUserCheck(dbContext, request.Data.Username, request.Data.Email);
 
         if (data != null)
         {
@@ -295,4 +300,6 @@ public sealed partial class UsersController
 
         return Ok(BaseResponse.Ok("User by ID was restored successfully"));
     }
+
+    private record UserCheckResult(bool UsernameExists, bool EmailExists);
 }

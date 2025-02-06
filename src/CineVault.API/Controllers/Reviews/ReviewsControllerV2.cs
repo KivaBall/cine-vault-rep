@@ -2,6 +2,20 @@
 
 public sealed partial class ReviewsController
 {
+    private static readonly Func<CineVaultDbContext, int, int, Task<ReviewCheckResult?>>
+        GetReviewCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, int movieId, int userId) =>
+                context.Reviews
+                    .AsNoTracking()
+                    .Where(m => m.Id == movieId)
+                    .Select(m => new ReviewCheckResult(
+                        context.Users
+                            .Any(u => u.Id == userId),
+                        context.Reviews
+                            .Any(r => r.MovieId == movieId && r.UserId == userId)
+                    ))
+                    .FirstOrDefault());
+
     [HttpPost("all")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<List<ReviewResponse>>>> GetReviewsV2(
@@ -58,17 +72,8 @@ public sealed partial class ReviewsController
 
         // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        var data = await dbContext.Movies
-            .AsNoTracking()
-            .Where(m => m.Id == request.Data.MovieId)
-            .Select(m => new
-            {
-                UserExists = dbContext.Users
-                    .Any(u => u.Id == request.Data.UserId),
-                ReviewExists = dbContext.Reviews
-                    .Any(r => r.MovieId == request.Data.MovieId && r.UserId == request.Data.UserId)
-            })
-            .FirstOrDefaultAsync();
+        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
+        var data = await GetReviewCheck(dbContext, request.Data.MovieId, request.Data.UserId);
 
         if (data == null)
         {
@@ -167,4 +172,6 @@ public sealed partial class ReviewsController
 
         return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));
     }
+
+    private record ReviewCheckResult(bool UserExists, bool ReviewExists);
 }
