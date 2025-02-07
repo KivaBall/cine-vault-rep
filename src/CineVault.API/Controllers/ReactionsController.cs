@@ -1,4 +1,15 @@
-namespace CineVault.API.Controllers.Reactions;
+using Asp.Versioning;
+using CineVault.API.Abstractions.Controllers;
+using CineVault.API.Controllers.Requests;
+using CineVault.API.Controllers.Responses;
+using CineVault.API.Entities;
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ILogger = Serilog.ILogger;
+
+namespace CineVault.API.Controllers;
 
 public sealed class ReactionsController(
     CineVaultDbContext dbContext,
@@ -6,6 +17,20 @@ public sealed class ReactionsController(
     IMapper mapper)
     : BaseController
 {
+    private static readonly Func<CineVaultDbContext, int, int, Task<ReactionCheckResult?>>
+        GetReactionCheck = EF.CompileAsyncQuery(
+            (CineVaultDbContext context, int reviewId, int userId) =>
+                context.Reviews
+                    .AsNoTracking()
+                    .Where(r => r.Id == reviewId)
+                    .Select(r => new ReactionCheckResult(
+                        context.Users
+                            .Any(u => u.Id == userId),
+                        context.Reactions.Any(r2 =>
+                            r2.ReviewId == reviewId && r2.UserId == userId)
+                    ))
+                    .FirstOrDefault());
+
     [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ReactionResponse>>> GetReactionByIdV2(
@@ -29,22 +54,6 @@ public sealed class ReactionsController(
 
         return Ok(BaseResponse.Ok(reaction, "Reaction by ID retrieved successfully"));
     }
-
-    private static readonly Func<CineVaultDbContext, int, int, Task<ReactionCheckResult?>>
-        GetReactionCheck = EF.CompileAsyncQuery(
-            (CineVaultDbContext context, int reviewId, int userId) =>
-                context.Reviews
-                    .AsNoTracking()
-                    .Where(r => r.Id == reviewId)
-                    .Select(r => new ReactionCheckResult(
-                        context.Users
-                            .Any(u => u.Id == userId),
-                        context.Reactions.Any(r2 =>
-                            r2.ReviewId == reviewId && r2.UserId == userId)
-                    ))
-                    .FirstOrDefault());
-
-    private record ReactionCheckResult(bool UserExists, bool ReactionExists);
 
     [HttpPost]
     [MapToApiVersion(2)]
@@ -148,4 +157,6 @@ public sealed class ReactionsController(
 
         return Ok(BaseResponse.Ok("Reaction by ID was deleted successfully"));
     }
+
+    private record ReactionCheckResult(bool UserExists, bool ReactionExists);
 }

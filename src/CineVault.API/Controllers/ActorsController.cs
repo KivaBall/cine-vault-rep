@@ -1,4 +1,15 @@
-namespace CineVault.API.Controllers.Actors;
+using Asp.Versioning;
+using CineVault.API.Abstractions.Controllers;
+using CineVault.API.Controllers.Requests;
+using CineVault.API.Controllers.Responses;
+using CineVault.API.Entities;
+using Mapster;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ILogger = Serilog.ILogger;
+
+namespace CineVault.API.Controllers;
 
 // TODO 5 Реалізувати контролер та основні методи CRUD для нової сутності
 public sealed class ActorsController(

@@ -1,3 +1,5 @@
+using CineVault.API.Abstractions.Entities;
+
 namespace CineVault.API.Entities;
 
 // TODO 5 Необхідно додати нову сутність Actor, яка буде представляти акторів у базі даних. Сутність повина мати поля FullName, BirthDate, Biography.

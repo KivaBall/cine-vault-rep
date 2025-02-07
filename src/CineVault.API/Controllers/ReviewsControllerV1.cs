@@ -1,4 +1,14 @@
-﻿namespace CineVault.API.Controllers.Reviews;
+﻿using Asp.Versioning;
+using CineVault.API.Abstractions.Controllers;
+using CineVault.API.Controllers.Requests;
+using CineVault.API.Controllers.Responses;
+using CineVault.API.Entities;
+using MapsterMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ILogger = Serilog.ILogger;
+
+namespace CineVault.API.Controllers;
 
 public sealed partial class ReviewsController(
     CineVaultDbContext dbContext,

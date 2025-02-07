@@ -1,4 +1,9 @@
-namespace CineVault.API.Controllers.AppInfo;
+using Asp.Versioning;
+using CineVault.API.Abstractions.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
+
+namespace CineVault.API.Controllers;
 
 public sealed class AppInfoController(
     IHostEnvironment environment,

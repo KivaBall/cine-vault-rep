@@ -1,6 +1,7 @@
-﻿namespace CineVault.API.Controllers.Movies;
+namespace CineVault.API.Controllers.Responses;
 
-public sealed class MovieResponse
+// TODO 9 Додати такі нові методи в API
+public sealed class MovieDetails
 {
     public required int Id { get; init; }
     public required string Title { get; init; }
@@ -10,5 +11,5 @@ public sealed class MovieResponse
     public required string? Director { get; init; }
     public required double AverageRating { get; init; }
     public required int ReviewCount { get; init; }
-    public required ICollection<ReviewResponse> Reviews { get; init; }
+    public required ICollection<ReviewResponse> LastReviews { get; init; }
 }

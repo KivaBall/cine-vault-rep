@@ -1,4 +1,8 @@
-﻿namespace CineVault.API.Entities;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using ILogger = Serilog.ILogger;
+
+namespace CineVault.API.Entities;
 
 public sealed class CineVaultDbContext(
     DbContextOptions<CineVaultDbContext> options,

@@ -1,3 +1,7 @@
+using CineVault.API.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace CineVault.API.Configuration;
 
 public sealed class MovieConfiguration : IEntityTypeConfiguration<Movie>

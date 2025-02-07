@@ -1,4 +1,4 @@
-namespace CineVault.API.Controllers.Movies;
+namespace CineVault.API.Controllers.Requests;
 
 public sealed class GetMoviesRequest
 {

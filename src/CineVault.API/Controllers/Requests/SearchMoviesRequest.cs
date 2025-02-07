@@ -1,4 +1,4 @@
-namespace CineVault.API.Controllers.Movies;
+namespace CineVault.API.Controllers.Requests;
 
 // TODO 9 Додати такі нові методи в API
 public sealed class SearchMoviesRequest

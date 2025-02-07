@@ -1,4 +1,13 @@
-﻿namespace CineVault.API.Controllers.Movies;
+﻿using Asp.Versioning;
+using CineVault.API.Abstractions.Controllers;
+using CineVault.API.Controllers.Requests;
+using CineVault.API.Controllers.Responses;
+using CineVault.API.Entities;
+using Mapster;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace CineVault.API.Controllers;
 
 public sealed partial class MoviesController
 {

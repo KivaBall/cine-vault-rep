@@ -1,3 +1,5 @@
+using CineVault.API.Abstractions.Entities;
+
 namespace CineVault.API.Entities;
 
 public sealed class Reaction : BaseEntity

@@ -1,4 +1,4 @@
-namespace CineVault.API.Controllers.Users;
+namespace CineVault.API.Controllers.Responses;
 
 // TODO 9 Додати такі нові методи в API
 public sealed class UserStats

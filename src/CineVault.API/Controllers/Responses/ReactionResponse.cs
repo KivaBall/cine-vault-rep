@@ -1,4 +1,4 @@
-﻿namespace CineVault.API.Controllers.Reactions;
+﻿namespace CineVault.API.Controllers.Responses;
 
 public sealed class ReactionResponse
 {
