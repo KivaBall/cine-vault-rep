@@ -1,3 +1,8 @@
+using CineVault.API.Controllers.Requests;
+using CineVault.API.Controllers.Responses;
+using CineVault.API.Entities;
+using Mapster;
+
 namespace CineVault.API.Mappers;
 
 public sealed class ReviewProfile : IRegister
@@ -9,9 +14,9 @@ public sealed class ReviewProfile : IRegister
 
         config.NewConfig<Review, ReviewResponse>()
             .Map(r => r.MovieTitle,
-                r => r.Movie!.Title)
+                r => r.Movie.Title)
             .Map(r => r.Username,
-                r => r.User!.Username)
+                r => r.User.Username)
             .Map(r => r.Likes,
                 r => r.Reactions.Count(r2 => r2.IsLike))
             .Map(r => r.Dislikes,

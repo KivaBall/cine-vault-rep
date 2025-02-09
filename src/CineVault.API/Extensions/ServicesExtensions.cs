@@ -1,24 +1,18 @@
+using System.Reflection;
+using Asp.Versioning;
+using CineVault.API.Entities;
+using CineVault.API.Middlewares;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Events;
+
 namespace CineVault.API.Extensions;
 
 public static class ServicesExtensions
 {
-    public static void ConfigureServices(this IServiceCollection services,
-        IConfiguration configuration, IHostEnvironment environment)
-    {
-        services.AddDbContext(configuration);
-
-        services.AddVersioning();
-
-        services.AddEndpoints();
-
-        services.AddLoggingWithSerilog(configuration);
-
-        services.AddSwagger(environment);
-
-        services.AddMappers();
-    }
-
-    private static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
+    public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<CineVaultDbContext>(options =>
         {
@@ -29,11 +23,12 @@ public static class ServicesExtensions
                 throw new InvalidOperationException("Connection string is not configured");
             }
 
-            options.UseInMemoryDatabase(connectionString);
+            // TODO 1 Налаштувати DbContext для роботи з базою даних
+            options.UseSqlServer(connectionString);
         });
     }
 
-    private static void AddVersioning(this IServiceCollection services)
+    public static void AddVersioning(this IServiceCollection services)
     {
         services
             .AddApiVersioning(opt =>
@@ -51,7 +46,7 @@ public static class ServicesExtensions
             });
     }
 
-    private static void AddEndpoints(this IServiceCollection services)
+    public static void AddEndpoints(this IServiceCollection services)
     {
         services.AddRouting(opt => opt.LowercaseUrls = true);
 
@@ -60,7 +55,7 @@ public static class ServicesExtensions
         services.AddEndpointsApiExplorer();
     }
 
-    private static void AddLoggingWithSerilog(this IServiceCollection services,
+    public static void AddLoggingWithSerilog(this IServiceCollection services,
         IConfiguration configuration)
     {
         var logLevelStr = configuration["Logging:LogLevel:Default"];
@@ -90,7 +85,7 @@ public static class ServicesExtensions
         services.AddScoped<SerilogMiddleware>();
     }
 
-    private static void AddSwagger(this IServiceCollection services,
+    public static void AddSwagger(this IServiceCollection services,
         IHostEnvironment environment)
     {
         if (environment.IsDevelopment())
@@ -111,7 +106,7 @@ public static class ServicesExtensions
         }
     }
 
-    private static void AddMappers(this IServiceCollection services)
+    public static void AddMappers(this IServiceCollection services)
     {
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());

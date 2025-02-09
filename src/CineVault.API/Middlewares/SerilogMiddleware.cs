@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using ILogger = Serilog.ILogger;
+
 namespace CineVault.API.Middlewares;
 
 public sealed class SerilogMiddleware(ILogger logger) : IMiddleware

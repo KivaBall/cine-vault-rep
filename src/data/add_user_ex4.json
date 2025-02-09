@@ -1,0 +1,13 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": {
+    "username": "Limb",
+    "email": "hell@gmail.com",
+    "password": "abcdef"
+  }
+}

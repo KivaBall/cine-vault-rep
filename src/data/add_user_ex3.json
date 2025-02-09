@@ -1,0 +1,13 @@
+{
+  "senderName": "Ihor Kobzar",
+  "meta": {
+    "genreFilter": "all",
+    "language": "en",
+    "region": "global"
+  },
+  "data": {
+    "username": "Excrudo",
+    "email": "java_animal@gmail.com",
+    "password": "abcdef"
+  }
+}

@@ -1,3 +1,6 @@
+using CineVault.API.Attributes;
+using Microsoft.AspNetCore.Mvc;
+
 namespace CineVault.API.Abstractions.Controllers;
 
 [ApiController]

@@ -7,66 +7,66 @@
   },
   "data": [
     {
-      "title": "The Shawshank Redemption",
-      "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-      "releaseDate": "1994-09-22",
+      "title": "Echoes of Eternity",
+      "description": "In a futuristic world, two outcasts find unexpected friendship and uncover a mystery that could change the course of history.",
+      "releaseDate": "2007-06-15",
       "genre": "Drama",
-      "director": "Frank Darabont"
+      "director": "Lucas Mercer"
     },
     {
       "title": "The Godfather",
       "description": "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
       "releaseDate": "1972-03-24",
-      "genre": "Crime, Drama",
+      "genre": "Crime",
       "director": "Francis Ford Coppola"
     },
     {
       "title": "The Dark Knight",
       "description": "When the menace known as the Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.",
       "releaseDate": "2008-07-18",
-      "genre": "Action, Crime, Drama",
+      "genre": "Action",
       "director": "Christopher Nolan"
     },
     {
       "title": "Schindler's List",
       "description": "In German-occupied Poland during World War II, industrialist Oskar Schindler gradually becomes concerned for his Jewish workforce after witnessing their persecution by the Nazis.",
       "releaseDate": "1993-12-15",
-      "genre": "Biography, Drama, History",
+      "genre": "Biography",
       "director": "Steven Spielberg"
     },
     {
       "title": "Pulp Fiction",
       "description": "The lives of two mob hitmen, a boxer, a gangster's wife, and a pair of diner bandits intertwine in four tales of violence and redemption.",
       "releaseDate": "1994-10-14",
-      "genre": "Crime, Drama",
+      "genre": "Crime",
       "director": "Quentin Tarantino"
     },
     {
       "title": "Forrest Gump",
       "description": "The presidencies of Kennedy and Johnson, the Vietnam War, the Watergate scandal and other historical events unfold from the perspective of an Alabama man with an IQ of 75.",
       "releaseDate": "1994-07-06",
-      "genre": "Drama, Romance",
+      "genre": "Drama",
       "director": "Robert Zemeckis"
     },
     {
       "title": "The Matrix",
       "description": "When a beautiful stranger leads computer hacker Neo to a forbidding underworld, he discovers the shocking truth about the reality of his world.",
       "releaseDate": "1999-03-31",
-      "genre": "Action, Sci-Fi",
+      "genre": "Action",
       "director": "Lana Wachowski, Lilly Wachowski"
     },
     {
       "title": "Inception",
       "description": "A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
       "releaseDate": "2010-07-16",
-      "genre": "Action, Adventure, Sci-Fi",
+      "genre": "Action",
       "director": "Christopher Nolan"
     },
     {
       "title": "The Lord of the Rings: The Return of the King",
       "description": "Gandalf and Aragorn lead the World of Men against Sauron's army to draw his gaze from Frodo and Sam as they approach Mount Doom with the One Ring.",
       "releaseDate": "2003-12-17",
-      "genre": "Action, Adventure, Drama",
+      "genre": "Action",
       "director": "Peter Jackson"
     },
     {
@@ -80,70 +80,70 @@
       "title": "Interstellar",
       "description": "A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.",
       "releaseDate": "2014-11-07",
-      "genre": "Adventure, Drama, Sci-Fi",
+      "genre": "Adventure",
       "director": "Christopher Nolan"
     },
     {
       "title": "The Silence of the Lambs",
       "description": "A young F.B.I. cadet must receive the help of an incarcerated and manipulative cannibal killer to catch another serial killer, a madman who skins his victims.",
       "releaseDate": "1991-02-14",
-      "genre": "Crime, Drama, Thriller",
+      "genre": "Crime",
       "director": "Jonathan Demme"
     },
     {
       "title": "Se7en",
       "description": "Two detectives, a rookie and a veteran, hunt a serial killer who uses the seven deadly sins as his motives.",
       "releaseDate": "1995-09-22",
-      "genre": "Crime, Drama, Mystery",
+      "genre": "Crime",
       "director": "David Fincher"
     },
     {
       "title": "The Green Mile",
       "description": "The lives of guards on Death Row are affected by one of their charges: a black man accused of child murder and rape, yet who has a mysterious gift.",
       "releaseDate": "1999-12-10",
-      "genre": "Crime, Drama, Fantasy",
+      "genre": "Crime",
       "director": "Frank Darabont"
     },
     {
       "title": "Gladiator",
       "description": "A former Roman General sets out to exact vengeance against the corrupt emperor who murdered his family and sent him into slavery.",
       "releaseDate": "2000-05-05",
-      "genre": "Action, Adventure, Drama",
+      "genre": "Action",
       "director": "Ridley Scott"
     },
     {
       "title": "Braveheart",
       "description": "Scottish warrior William Wallace leads his countrymen in a rebellion to free his homeland from the tyranny of King Edward I of England.",
       "releaseDate": "1995-05-24",
-      "genre": "Biography, Drama, History",
+      "genre": "Biography",
       "director": "Mel Gibson"
     },
     {
       "title": "Titanic",
       "description": "A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.",
       "releaseDate": "1997-12-19",
-      "genre": "Drama, Romance",
+      "genre": "Drama",
       "director": "James Cameron"
     },
     {
       "title": "Avatar",
       "description": "A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.",
       "releaseDate": "2009-12-18",
-      "genre": "Action, Adventure, Fantasy",
+      "genre": "Action",
       "director": "James Cameron"
     },
     {
       "title": "Saving Private Ryan",
       "description": "Following the Normandy Landings, a group of U.S. soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.",
       "releaseDate": "1998-07-24",
-      "genre": "Drama, War",
+      "genre": "Drama",
       "director": "Steven Spielberg"
     },
     {
       "title": "The Lion King",
       "description": "Lion prince Simba and his father are targeted by his bitter uncle, who wants to ascend the throne himself.",
       "releaseDate": "1994-06-24",
-      "genre": "Animation, Adventure, Drama",
+      "genre": "Animation",
       "director": "Roger Allers, Rob Minkoff"
     }
   ]

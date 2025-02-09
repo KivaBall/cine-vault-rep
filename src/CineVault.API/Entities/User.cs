@@ -1,4 +1,6 @@
-﻿namespace CineVault.API.Entities;
+﻿using CineVault.API.Abstractions.Entities;
+
+namespace CineVault.API.Entities;
 
 public sealed class User : BaseEntity
 {

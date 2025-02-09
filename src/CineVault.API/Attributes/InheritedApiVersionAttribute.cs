@@ -1,3 +1,5 @@
+using Asp.Versioning;
+
 namespace CineVault.API.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]

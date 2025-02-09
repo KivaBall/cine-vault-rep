@@ -1,4 +1,6 @@
-﻿namespace CineVault.API.Entities;
+﻿using CineVault.API.Abstractions.Entities;
+
+namespace CineVault.API.Entities;
 
 public sealed class Movie : BaseEntity
 {
@@ -19,4 +21,5 @@ public sealed class Movie : BaseEntity
     public DateOnly? ReleaseDate { get; set; }
 
     public ICollection<Review> Reviews { get; } = []; // NavProperty
+    public ICollection<Actor> Actors { get; } = []; // NavProperty
 }
