@@ -30,9 +30,6 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting users...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var users = await dbContext.Users
             .AsNoTracking()
             .Where(u =>
@@ -59,8 +56,6 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
             .AsNoTracking()
             .ProjectToType<UserResponse>()
@@ -83,8 +78,6 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting user with username {Username}...", request.Data);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
             .AsNoTracking()
             .ProjectToType<UserResponse>()
@@ -107,8 +100,6 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting user with email {Email}...", request.Data);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
             .AsNoTracking()
             .ProjectToType<UserResponse>()
@@ -124,7 +115,6 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok(user, "User by email retrieved successfully"));
     }
 
-    // TODO 9 Додати такі нові методи в API
     [HttpPost("{id:int}/user-stats")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<UserStats>>> GetUserStatsV2(BaseRequest request,
@@ -132,8 +122,6 @@ public sealed partial class UsersController
     {
         logger.Information("Serilog | Getting user with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var user = await dbContext.Users
             .AsNoTracking()
             .ProjectToType<UserStats>()
@@ -154,10 +142,6 @@ public sealed partial class UsersController
     public async Task<ActionResult<BaseResponse<int>>> CreateUserV2(
         BaseRequest<UserRequest> request)
     {
-        // TODO 11 Додати обробку помилок в API
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
         var data = await GetUserCheck(dbContext, request.Data.Username, request.Data.Email);
 
         if (data != null)
@@ -205,8 +189,6 @@ public sealed partial class UsersController
             return NotFound(BaseResponse.NotFound("User by ID was not found"));
         }
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var data = await dbContext.Users
             .AsNoTracking()
             .Where(u =>
@@ -274,7 +256,6 @@ public sealed partial class UsersController
         return Ok(BaseResponse.Ok("User by ID was deleted successfully"));
     }
 
-    // TODO 10 Покажіть приклад, коли потрібно ігнорувати даний глобальний фільтр
     [HttpPut("{id:int}/restore")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse>> RestoreUserV2(BaseRequest request, int id)

@@ -32,8 +32,6 @@ public sealed partial class ReviewsController
     {
         logger.Information("Serilog | Getting reviews...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var reviews = await dbContext.Reviews
             .AsNoTracking()
             .ProjectToType<ReviewResponse>()
@@ -49,8 +47,6 @@ public sealed partial class ReviewsController
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var review = await dbContext.Reviews
             .AsNoTracking()
             .ProjectToType<ReviewResponse>()
@@ -79,9 +75,6 @@ public sealed partial class ReviewsController
             return BadRequest(BaseResponse.BadRequest("Review rating is not in correct span"));
         }
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
         var data = await GetReviewCheck(dbContext, request.Data.MovieId, request.Data.UserId);
 
         if (data == null)
