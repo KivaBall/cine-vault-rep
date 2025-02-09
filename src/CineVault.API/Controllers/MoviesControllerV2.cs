@@ -6,6 +6,7 @@ using CineVault.API.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CineVault.API.Controllers;
 
@@ -91,9 +92,21 @@ public sealed partial class MoviesController
     public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(
         BaseRequest request, int id)
     {
-        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+        // TODO A
+        var cacheKey = $"movie-{id}";
 
-        var movie = await dbContext.Movies
+        logger.Information("Serilog | Getting movie with ID {Id} from memory cache...", id);
+
+        var movie = memoryCache.Get<MovieResponse>(cacheKey);
+
+        if (movie != null)
+        {
+            return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from cache successfully"));
+        }
+
+        logger.Information("Serilog | Getting movie with ID {Id} from database...", id);
+
+        movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieResponse>()
             .FirstOrDefaultAsync(m => m.Id == id);
@@ -105,7 +118,15 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved successfully"));
+        logger.Information("Serilog | Caching movie with ID {Id} in memory cache...", id);
+
+        memoryCache.Set(cacheKey, movie, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
+        });
+            
+        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from database successfully"));
+
     }
 
     [HttpPost("{id:int}/movie-details")]
