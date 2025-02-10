@@ -18,9 +18,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movies...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var movies = await dbContext.Movies
             .AsNoTracking()
             .Where(m =>
@@ -54,7 +51,6 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
-    // TODO 9 Додати такі нові методи в API
     [HttpPost("search-movies")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<MovieResponse>>>> SearchMoviesV2(
@@ -64,9 +60,6 @@ public sealed partial class MoviesController
 
         var searchText = request.Data.SearchText?.ToLower();
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var movies = await dbContext.Movies
             .AsNoTracking()
             .Where(m =>
@@ -100,8 +93,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieResponse>()
@@ -117,7 +108,6 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved successfully"));
     }
 
-    // TODO 9 Додати такі нові методи в API
     [HttpPost("{id:int}/movie-details")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<MovieDetails>>> GetMovieDetailsV2(
@@ -125,8 +115,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieDetails>()
@@ -147,7 +135,6 @@ public sealed partial class MoviesController
     public async Task<ActionResult<BaseResponse<int>>> CreateMovieV2(
         BaseRequest<MovieRequest> request)
     {
-        // TODO 11 Додати обробку помилок в API
         var titleExists = await dbContext.Movies
             .AnyAsync(m => m.Title == request.Data.Title);
 
@@ -177,8 +164,6 @@ public sealed partial class MoviesController
     {
         var requestedTitles = request.Data.Select(m => m.Title).ToList();
 
-        // TODO 11 Додати обробку помилок в API
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         var existingTitles = await dbContext.Movies
             .AsNoTracking()
             .Where(m => requestedTitles.Contains(m.Title))
@@ -285,7 +270,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movies with specified IDs {Ids}...", request.Data);
 
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var data = await dbContext.Movies
             .Where(m => request.Data.Contains(m.Id))
             .Select(m => new

@@ -8,11 +8,9 @@ public sealed class ReactionConfiguration : IEntityTypeConfiguration<Reaction>
 {
     public void Configure(EntityTypeBuilder<Reaction> builder)
     {
-        // TODO 4 Зробити три зміни на власний розсуд в структурі бази даних та створити міграцію
         builder.Property(m => m.Id)
             .HasColumnName("ReactionId");
 
-        // TODO 10 Налаштувати фільтри на рівні DbContext, щоб виключати видалені записи з запитів
         builder.HasQueryFilter(r => !r.IsDeleted);
 
         builder
@@ -21,7 +19,6 @@ public sealed class ReactionConfiguration : IEntityTypeConfiguration<Reaction>
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // TODO 7 Забезпечення унікальних ключів
         builder.HasIndex(r => new { r.UserId, r.ReviewId })
             .IsUnique();
     }

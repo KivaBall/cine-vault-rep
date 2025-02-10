@@ -11,7 +11,6 @@ using ILogger = Serilog.ILogger;
 
 namespace CineVault.API.Controllers;
 
-// TODO 5 Реалізувати контролер та основні методи CRUD для нової сутності
 public sealed class ActorsController(
     CineVaultDbContext dbContext,
     ILogger logger,
@@ -25,8 +24,6 @@ public sealed class ActorsController(
     {
         logger.Information("Serilog | Getting actors ...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var actors = await dbContext.Actors
             .AsNoTracking()
             .ProjectToType<ActorResponse>()
@@ -42,8 +39,6 @@ public sealed class ActorsController(
     {
         logger.Information("Serilog | Getting actor with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var actor = await dbContext.Actors
             .AsNoTracking()
             .ProjectToType<ActorResponse>()
@@ -86,7 +81,6 @@ public sealed class ActorsController(
         return Ok(BaseResponse.Created(actor.Id, "Actor was created successfully"));
     }
 
-    // TODO 5 Додати метод для завантаження одразу масиву даних з акторами
     [HttpPost("several")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<int>>>> CreateActorsV2(
@@ -94,7 +88,6 @@ public sealed class ActorsController(
     {
         var requestedFullNames = request.Data.Select(a => a.FullName).ToList();
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         var existingFullNames = await dbContext.Actors
             .AsNoTracking()
             .Where(a => requestedFullNames.Contains(a.FullName))

@@ -23,7 +23,6 @@ public static class ServicesExtensions
                 throw new InvalidOperationException("Connection string is not configured");
             }
 
-            // TODO 1 Налаштувати DbContext для роботи з базою даних
             options.UseSqlServer(connectionString);
         });
     }
