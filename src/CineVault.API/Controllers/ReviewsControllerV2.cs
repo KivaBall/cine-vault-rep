@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using System.Text.Json;
+using Asp.Versioning;
 using CineVault.API.Abstractions.Controllers;
 using CineVault.API.Controllers.Requests;
 using CineVault.API.Controllers.Responses;
@@ -6,6 +7,7 @@ using CineVault.API.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace CineVault.API.Controllers;
 
@@ -14,7 +16,7 @@ public sealed partial class ReviewsController
     private static readonly Func<CineVaultDbContext, int, int, Task<ReviewCheckResult?>>
         GetReviewCheck = EF.CompileAsyncQuery(
             (CineVaultDbContext context, int movieId, int userId) =>
-                context.Reviews
+                context.Movies
                     .AsNoTracking()
                     .Where(m => m.Id == movieId)
                     .Select(m => new ReviewCheckResult(
@@ -60,6 +62,60 @@ public sealed partial class ReviewsController
         }
 
         return Ok(BaseResponse.Ok(review, "Review by ID retrieved successfully"));
+    }
+
+    [HttpPost("by-movie/{movieId:int}")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ICollection<ReviewResponse>>>>
+        GetReviewsByMovieIdV2(BaseRequest request, int movieId)
+    {
+        // TODO B
+        var cacheKey = $"reviews_{movieId}";
+
+        logger.Information("Serilog | Getting reviews with movie ID {Id} from distributed cache...",
+            movieId);
+
+        var cachedReviewsJson = await distributedCache.GetStringAsync(cacheKey);
+
+        if (cachedReviewsJson != null)
+        {
+            var deserializedReviews = JsonSerializer.Deserialize<ICollection<ReviewResponse>>(
+                cachedReviewsJson);
+
+            return Ok(BaseResponse.Ok(deserializedReviews,
+                "Reviews by movie ID retrieved from distributed cache successfully"));
+        }
+
+        logger.Information("Serilog | Getting reviews with movie ID {Id} from database...",
+            movieId);
+
+        var reviews = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m => m.Id == movieId)
+            .Select(m => m.Reviews)
+            .ProjectToType<ICollection<ReviewResponse>>()
+            .FirstOrDefaultAsync();
+
+        if (reviews == null)
+        {
+            logger.Warning("Serilog | Reviews with movie ID {Id} not found", movieId);
+
+            return NotFound(BaseResponse.NotFound("Reviews by movie ID were not found"));
+        }
+
+        var serializedReviews = JsonSerializer.Serialize(reviews);
+
+        logger.Information("Serilog | Caching reviews with movie ID {Id} in distributed cache...",
+            movieId);
+
+        await distributedCache.SetStringAsync(cacheKey, serializedReviews,
+            new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+            });
+
+        return Ok(BaseResponse.Ok(reviews,
+            "Reviews by movie ID retrieved from database successfully"));
     }
 
     [HttpPost]
@@ -109,6 +165,11 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Creating review...");
 
         await dbContext.SaveChangesAsync();
+
+        logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
+            request.Data.MovieId);
+
+        await distributedCache.RemoveAsync($"reviews_{request.Data.MovieId}");
 
         return Ok(BaseResponse.Created(review.Id, "Review was created successfully"));
     }
@@ -171,6 +232,11 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Deleting review...");
 
         await dbContext.SaveChangesAsync();
+
+        logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
+            review.MovieId);
+
+        await distributedCache.RemoveAsync($"reviews_{review.MovieId}");
 
         return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));
     }

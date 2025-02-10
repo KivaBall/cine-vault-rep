@@ -93,7 +93,7 @@ public sealed partial class MoviesController
         BaseRequest request, int id)
     {
         // TODO A
-        var cacheKey = $"movie-{id}";
+        var cacheKey = $"movie_{id}";
 
         logger.Information("Serilog | Getting movie with ID {Id} from memory cache...", id);
 
@@ -124,9 +124,8 @@ public sealed partial class MoviesController
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
         });
-            
-        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from database successfully"));
 
+        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from database successfully"));
     }
 
     [HttpPost("{id:int}/movie-details")]
