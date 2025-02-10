@@ -9,6 +9,7 @@ builder.Services.AddEndpoints();
 builder.Services.AddLoggingWithSerilog(builder.Configuration);
 builder.Services.AddSwagger(builder.Environment);
 builder.Services.AddMappers();
+builder.Services.AddCaching(builder.Configuration);
 
 var app = builder.Build();
 
