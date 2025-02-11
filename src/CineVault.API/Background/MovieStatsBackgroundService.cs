@@ -4,6 +4,7 @@ using ILogger = Serilog.ILogger;
 
 namespace CineVault.API.Background;
 
+// TODO a) фоновий метод для періодичного оновлення статистики по фільмах
 public sealed class MovieStatsBackgroundService(
     IServiceScopeFactory scopeFactory,
     ILogger logger)
@@ -15,6 +16,9 @@ public sealed class MovieStatsBackgroundService(
         {
             logger.Information("Serilog | Executing background service for movie stats");
 
+            // TODO a) кожний раз процес запускає перевірку в бд і калькулює статистику фільмів
+            // (колонки фільм-id, середня оцінка, кількість відгуків, коментів по кожному фільму,
+            // ознака чи видалений фільм (deleted), дата зміни рядка статистики). 
             using var scope = scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<CineVaultDbContext>();
 
@@ -42,6 +46,8 @@ public sealed class MovieStatsBackgroundService(
                 var reviewCount = movie.Reviews.Count;
                 var isDeleted = movie.IsDeleted;
 
+                // TODO a) якщо таблиця пуста, записуються нові записи по статистиці, якщо
+                // інформація по фільму для статистики змінюється – виконується оновлення полів статистики
                 if (!movieStatsDictionary.TryGetValue(movie.Id, out var existingStat))
                 {
                     var newStat = new MovieStat(movie.Id, avgRating, reviewCount, isDeleted)
@@ -72,11 +78,14 @@ public sealed class MovieStatsBackgroundService(
 
             await context.SaveChangesAsync(token);
 
+            // TODO c) зробити логування в консоль успішного виконання кожного з методів з інформацією
+            // про кількість видалених, оновлених записів, нових записів в таблицю кожний показник окремо
             logger.Information(
                 "Serilog | Finished executing background service for movie stats. " +
                 "Movie stats added: {AddedCount}, movie stats updated: {UpdatedCount}",
                 addedCount, updatedCount);
 
+            // TODO a) процес перевірки повинен виконуватись кожні 30 сек
             await Task.Delay(TimeSpan.FromSeconds(30), token);
         }
     }

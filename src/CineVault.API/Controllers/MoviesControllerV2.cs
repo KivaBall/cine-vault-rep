@@ -130,6 +130,7 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movie, "Movie details by ID retrieved successfully"));
     }
 
+    // TODO a) зробити метод у відповідному контролері для відображення всіх актуальних даних з цієї таблиці
     [HttpPost("movie-stats")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<MovieStat>>>> GetMovieStats(

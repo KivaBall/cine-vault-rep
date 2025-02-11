@@ -1,5 +1,6 @@
 namespace CineVault.API.Entities;
 
+// TODO a) вставка нових даних, оновлення по фільмам в окрему таблицю/сутність бази даних
 public sealed class MovieStat
 {
     public MovieStat(int movieId, double averageRating, int reviewCount, bool movieWasDeleted)
