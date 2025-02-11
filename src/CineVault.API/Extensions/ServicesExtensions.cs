@@ -1,5 +1,6 @@
 using System.Reflection;
 using Asp.Versioning;
+using CineVault.API.Background;
 using CineVault.API.Entities;
 using CineVault.API.Middlewares;
 using Mapster;
@@ -109,5 +110,11 @@ public static class ServicesExtensions
     {
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
+    }
+
+    public static void AddHostedServices(this IServiceCollection services)
+    {
+        services.AddHostedService<MovieStatsBackgroundService>();
+        services.AddHostedService<DeleteIrrelevantMoviesBackgroundService>();
     }
 }
