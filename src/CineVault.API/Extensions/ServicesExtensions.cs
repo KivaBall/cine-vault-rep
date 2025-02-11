@@ -123,6 +123,7 @@ public static class ServicesExtensions
             throw new InvalidOperationException("Connection string is not configured");
         }
 
+        // TODO b) налаштувати Distributed Cache для використання SQL Server - (localdb)\MSSQLLocalDB
         using var connection = new SqlConnection(connectionString);
         connection.Open();
         var command = connection.CreateCommand();

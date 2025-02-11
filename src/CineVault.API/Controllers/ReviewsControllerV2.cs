@@ -64,12 +64,12 @@ public sealed partial class ReviewsController
         return Ok(BaseResponse.Ok(review, "Review by ID retrieved successfully"));
     }
 
+    // TODO b) додати в існуючий метод, який повертає огляд на фільм або додати новий, якщо відсутній, який кешуватиме список оглядів (рев'ю) для конкретного фільму у Distributed Cache (SQL Server)
     [HttpPost("by-movie/{movieId:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<ReviewResponse>>>>
         GetReviewsByMovieIdV2(BaseRequest request, int movieId)
     {
-        // TODO B
         var cacheKey = $"reviews_{movieId}";
 
         logger.Information("Serilog | Getting reviews with movie ID {Id} from distributed cache...",
@@ -77,6 +77,7 @@ public sealed partial class ReviewsController
 
         var cachedReviewsJson = await distributedCache.GetStringAsync(cacheKey);
 
+        // TODO b) якщо дані про огляди доступні у Distributed Cache, повертати їх із кешу (використовуючи ключ, який включає ID фільму, наприклад, reviews_{movieId}). 
         if (cachedReviewsJson != null)
         {
             var deserializedReviews = JsonSerializer.Deserialize<ICollection<ReviewResponse>>(
@@ -89,6 +90,7 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Getting reviews with movie ID {Id} from database...",
             movieId);
 
+        // TODO b) якщо даних немає, отримувати їх із бази даних, серіалізувати у формат JSON, зберегти у кеші з часом життя 1 хвилина, а потім повертати користувачеві
         var reviews = await dbContext.Movies
             .AsNoTracking()
             .Where(m => m.Id == movieId)
@@ -111,6 +113,7 @@ public sealed partial class ReviewsController
         await distributedCache.SetStringAsync(cacheKey, serializedReviews,
             new DistributedCacheEntryOptions
             {
+                // TODO b) кеш має оновлюватися кожну 1 хвилину
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
             });
 
@@ -169,6 +172,7 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
             request.Data.MovieId);
 
+        // TODO b) додати логіку, яка видаляє кеш для оглядів, якщо додається/видаляється новий огляд до фільму
         await distributedCache.RemoveAsync($"reviews_{request.Data.MovieId}");
 
         return Ok(BaseResponse.Created(review.Id, "Review was created successfully"));
@@ -236,6 +240,7 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
             review.MovieId);
 
+        // TODO b) додати логіку, яка видаляє кеш для оглядів, якщо додається/видаляється новий огляд до фільму
         await distributedCache.RemoveAsync($"reviews_{review.MovieId}");
 
         return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));

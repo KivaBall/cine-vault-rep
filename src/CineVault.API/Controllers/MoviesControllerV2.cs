@@ -87,25 +87,29 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
+    // TODO a) додати в існуючий метод пошук фільму або додати новий, якщо відсутній, який кешуватиме дані фільмів у IMemoryCache
     [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(
         BaseRequest request, int id)
     {
-        // TODO A
         var cacheKey = $"movie_{id}";
 
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
         logger.Information("Serilog | Getting movie with ID {Id} from memory cache...", id);
 
         var movie = memoryCache.Get<MovieResponse>(cacheKey);
 
+        // TODO a) якщо дані про фільми доступні у IMemoryCache, повертати їх із кешу
         if (movie != null)
         {
             return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from cache successfully"));
         }
 
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
         logger.Information("Serilog | Getting movie with ID {Id} from database...", id);
 
+        // TODO a) якщо даних у кеші немає, отримувати їх із бази даних, додавати в кеш та повертати користувачеві
         movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieResponse>()
@@ -118,10 +122,12 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
         logger.Information("Serilog | Caching movie with ID {Id} in memory cache...", id);
 
         memoryCache.Set(cacheKey, movie, new MemoryCacheEntryOptions
         {
+            // TODO a) кеш має оновлюватися кожні 3 хвилини
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
         });
 
