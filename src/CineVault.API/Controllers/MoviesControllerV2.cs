@@ -130,6 +130,16 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movie, "Movie details by ID retrieved successfully"));
     }
 
+    [HttpPost("movie-stats")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ICollection<MovieStat>>>> GetMovieStats(
+        BaseRequest request)
+    {
+        var movieStats = await dbContext.MovieStats.ToListAsync();
+
+        return Ok(BaseResponse.Ok(movieStats, "Movie stats retrieved successfully"));
+    }
+
     [HttpPost]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<int>>> CreateMovieV2(
