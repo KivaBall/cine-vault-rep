@@ -20,6 +20,7 @@ public sealed class Movie : BaseEntity
     public string? Director { get; set; }
     public DateOnly? ReleaseDate { get; set; }
 
+    public MovieStat? MovieStat { get; set; } // NavProperty
     public ICollection<Review> Reviews { get; } = []; // NavProperty
     public ICollection<Actor> Actors { get; } = []; // NavProperty
 }

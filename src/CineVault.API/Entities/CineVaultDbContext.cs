@@ -14,6 +14,7 @@ public sealed class CineVaultDbContext(
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<Reaction> Reactions { get; set; }
     public required DbSet<Actor> Actors { get; set; }
+    public required DbSet<MovieStat> MovieStats { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
