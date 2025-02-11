@@ -145,6 +145,13 @@
       "releaseDate": "1994-06-24",
       "genre": "Animation",
       "director": "Roger Allers, Rob Minkoff"
+    },
+    {
+      "title": "Neon Rebellion",
+      "description": "In a dystopian metropolis, a renegade hacker teams up with underground rebels to expose a totalitarian regime, igniting a spark of hope that could transform their divided society.",
+      "releaseDate": "2023-11-02",
+      "genre": "Sci-Fi Action",
+      "director": "Marcus Lee"
     }
   ]
 }
