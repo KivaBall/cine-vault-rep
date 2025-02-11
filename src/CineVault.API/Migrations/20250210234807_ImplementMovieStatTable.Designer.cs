@@ -4,6 +4,7 @@ using CineVault.API.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CineVault.API.Migrations
 {
     [DbContext(typeof(CineVaultDbContext))]
-    partial class CineVaultDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250210234807_ImplementMovieStatTable")]
+    partial class ImplementMovieStatTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
