@@ -6,6 +6,7 @@ using CineVault.API.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CineVault.API.Controllers;
 
@@ -18,9 +19,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movies...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var movies = await dbContext.Movies
             .AsNoTracking()
             .Where(m =>
@@ -54,7 +52,6 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
-    // TODO 9 Додати такі нові методи в API
     [HttpPost("search-movies")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<ICollection<MovieResponse>>>> SearchMoviesV2(
@@ -64,9 +61,6 @@ public sealed partial class MoviesController
 
         var searchText = request.Data.SearchText?.ToLower();
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var movies = await dbContext.Movies
             .AsNoTracking()
             .Where(m =>
@@ -93,16 +87,30 @@ public sealed partial class MoviesController
         return Ok(BaseResponse.Ok(movies, "All movies retrieved successfully"));
     }
 
+    // TODO a) додати в існуючий метод пошук фільму або додати новий, якщо відсутній, який кешуватиме дані фільмів у IMemoryCache
     [HttpPost("{id:int}")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<MovieResponse>>> GetMovieByIdV2(
         BaseRequest request, int id)
     {
-        logger.Information("Serilog | Getting movie with ID {Id}...", id);
+        var cacheKey = $"movie_{id}";
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
-        var movie = await dbContext.Movies
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
+        logger.Information("Serilog | Getting movie with ID {Id} from memory cache...", id);
+
+        var movie = memoryCache.Get<MovieResponse>(cacheKey);
+
+        // TODO a) якщо дані про фільми доступні у IMemoryCache, повертати їх із кешу
+        if (movie != null)
+        {
+            return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from cache successfully"));
+        }
+
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
+        logger.Information("Serilog | Getting movie with ID {Id} from database...", id);
+
+        // TODO a) якщо даних у кеші немає, отримувати їх із бази даних, додавати в кеш та повертати користувачеві
+        movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieResponse>()
             .FirstOrDefaultAsync(m => m.Id == id);
@@ -114,10 +122,18 @@ public sealed partial class MoviesController
             return NotFound(BaseResponse.NotFound("Movie by ID was not found"));
         }
 
-        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved successfully"));
+        // TODO a) додати логування, щоб відслідковувати, чи дані беруться з кешу або з бази даних
+        logger.Information("Serilog | Caching movie with ID {Id} in memory cache...", id);
+
+        memoryCache.Set(cacheKey, movie, new MemoryCacheEntryOptions
+        {
+            // TODO a) кеш має оновлюватися кожні 3 хвилини
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
+        });
+
+        return Ok(BaseResponse.Ok(movie, "Movie by ID retrieved from database successfully"));
     }
 
-    // TODO 9 Додати такі нові методи в API
     [HttpPost("{id:int}/movie-details")]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<MovieDetails>>> GetMovieDetailsV2(
@@ -125,8 +141,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movie with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var movie = await dbContext.Movies
             .AsNoTracking()
             .ProjectToType<MovieDetails>()
@@ -147,7 +161,6 @@ public sealed partial class MoviesController
     public async Task<ActionResult<BaseResponse<int>>> CreateMovieV2(
         BaseRequest<MovieRequest> request)
     {
-        // TODO 11 Додати обробку помилок в API
         var titleExists = await dbContext.Movies
             .AnyAsync(m => m.Title == request.Data.Title);
 
@@ -177,8 +190,6 @@ public sealed partial class MoviesController
     {
         var requestedTitles = request.Data.Select(m => m.Title).ToList();
 
-        // TODO 11 Додати обробку помилок в API
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         var existingTitles = await dbContext.Movies
             .AsNoTracking()
             .Where(m => requestedTitles.Contains(m.Title))
@@ -285,7 +296,6 @@ public sealed partial class MoviesController
     {
         logger.Information("Serilog | Getting movies with specified IDs {Ids}...", request.Data);
 
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
         var data = await dbContext.Movies
             .Where(m => request.Data.Contains(m.Id))
             .Select(m => new

@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using System.Text.Json;
+using Asp.Versioning;
 using CineVault.API.Abstractions.Controllers;
 using CineVault.API.Controllers.Requests;
 using CineVault.API.Controllers.Responses;
@@ -6,6 +7,7 @@ using CineVault.API.Entities;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace CineVault.API.Controllers;
 
@@ -14,7 +16,7 @@ public sealed partial class ReviewsController
     private static readonly Func<CineVaultDbContext, int, int, Task<ReviewCheckResult?>>
         GetReviewCheck = EF.CompileAsyncQuery(
             (CineVaultDbContext context, int movieId, int userId) =>
-                context.Reviews
+                context.Movies
                     .AsNoTracking()
                     .Where(m => m.Id == movieId)
                     .Select(m => new ReviewCheckResult(
@@ -32,8 +34,6 @@ public sealed partial class ReviewsController
     {
         logger.Information("Serilog | Getting reviews...");
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var reviews = await dbContext.Reviews
             .AsNoTracking()
             .ProjectToType<ReviewResponse>()
@@ -49,8 +49,6 @@ public sealed partial class ReviewsController
     {
         logger.Information("Serilog | Getting review with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var review = await dbContext.Reviews
             .AsNoTracking()
             .ProjectToType<ReviewResponse>()
@@ -66,6 +64,63 @@ public sealed partial class ReviewsController
         return Ok(BaseResponse.Ok(review, "Review by ID retrieved successfully"));
     }
 
+    // TODO b) додати в існуючий метод, який повертає огляд на фільм або додати новий, якщо відсутній, який кешуватиме список оглядів (рев'ю) для конкретного фільму у Distributed Cache (SQL Server)
+    [HttpPost("by-movie/{movieId:int}")]
+    [MapToApiVersion(2)]
+    public async Task<ActionResult<BaseResponse<ICollection<ReviewResponse>>>>
+        GetReviewsByMovieIdV2(BaseRequest request, int movieId)
+    {
+        var cacheKey = $"reviews_{movieId}";
+
+        logger.Information("Serilog | Getting reviews with movie ID {Id} from distributed cache...",
+            movieId);
+
+        var cachedReviewsJson = await distributedCache.GetStringAsync(cacheKey);
+
+        // TODO b) якщо дані про огляди доступні у Distributed Cache, повертати їх із кешу (використовуючи ключ, який включає ID фільму, наприклад, reviews_{movieId}). 
+        if (cachedReviewsJson != null)
+        {
+            var deserializedReviews = JsonSerializer.Deserialize<ICollection<ReviewResponse>>(
+                cachedReviewsJson);
+
+            return Ok(BaseResponse.Ok(deserializedReviews,
+                "Reviews by movie ID retrieved from distributed cache successfully"));
+        }
+
+        logger.Information("Serilog | Getting reviews with movie ID {Id} from database...",
+            movieId);
+
+        // TODO b) якщо даних немає, отримувати їх із бази даних, серіалізувати у формат JSON, зберегти у кеші з часом життя 1 хвилина, а потім повертати користувачеві
+        var reviews = await dbContext.Movies
+            .AsNoTracking()
+            .Where(m => m.Id == movieId)
+            .Select(m => m.Reviews)
+            .ProjectToType<ICollection<ReviewResponse>>()
+            .FirstOrDefaultAsync();
+
+        if (reviews == null)
+        {
+            logger.Warning("Serilog | Reviews with movie ID {Id} not found", movieId);
+
+            return NotFound(BaseResponse.NotFound("Reviews by movie ID were not found"));
+        }
+
+        var serializedReviews = JsonSerializer.Serialize(reviews);
+
+        logger.Information("Serilog | Caching reviews with movie ID {Id} in distributed cache...",
+            movieId);
+
+        await distributedCache.SetStringAsync(cacheKey, serializedReviews,
+            new DistributedCacheEntryOptions
+            {
+                // TODO b) кеш має оновлюватися кожну 1 хвилину
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
+            });
+
+        return Ok(BaseResponse.Ok(reviews,
+            "Reviews by movie ID retrieved from database successfully"));
+    }
+
     [HttpPost]
     [MapToApiVersion(2)]
     public async Task<ActionResult<BaseResponse<int>>> CreateReviewV2(
@@ -79,9 +134,6 @@ public sealed partial class ReviewsController
             return BadRequest(BaseResponse.BadRequest("Review rating is not in correct span"));
         }
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
         var data = await GetReviewCheck(dbContext, request.Data.MovieId, request.Data.UserId);
 
         if (data == null)
@@ -116,6 +168,12 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Creating review...");
 
         await dbContext.SaveChangesAsync();
+
+        logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
+            request.Data.MovieId);
+
+        // TODO b) додати логіку, яка видаляє кеш для оглядів, якщо додається/видаляється новий огляд до фільму
+        await distributedCache.RemoveAsync($"reviews_{request.Data.MovieId}");
 
         return Ok(BaseResponse.Created(review.Id, "Review was created successfully"));
     }
@@ -178,6 +236,12 @@ public sealed partial class ReviewsController
         logger.Information("Serilog | Deleting review...");
 
         await dbContext.SaveChangesAsync();
+
+        logger.Information("Serilog | Deleting cache for reviews with movie ID {Id}...",
+            review.MovieId);
+
+        // TODO b) додати логіку, яка видаляє кеш для оглядів, якщо додається/видаляється новий огляд до фільму
+        await distributedCache.RemoveAsync($"reviews_{review.MovieId}");
 
         return Ok(BaseResponse.Ok("Review by ID was deleted successfully"));
     }

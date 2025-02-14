@@ -22,7 +22,6 @@ public static class PipelineExtensions
 
         var dbContext = scope.ServiceProvider.GetRequiredService<CineVaultDbContext>();
 
-        // TODO 3 Реалізувати логіку автоматичного створення бази даних за відсутності, використовуючи EnsureCreated().
         dbContext.Database.EnsureCreated();
     }
 }

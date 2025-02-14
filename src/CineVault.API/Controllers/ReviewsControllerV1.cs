@@ -6,6 +6,7 @@ using CineVault.API.Entities;
 using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using ILogger = Serilog.ILogger;
 
 namespace CineVault.API.Controllers;
@@ -13,7 +14,8 @@ namespace CineVault.API.Controllers;
 public sealed partial class ReviewsController(
     CineVaultDbContext dbContext,
     ILogger logger,
-    IMapper mapper)
+    IMapper mapper,
+    IDistributedCache distributedCache)
     : BaseController
 {
     [HttpGet]

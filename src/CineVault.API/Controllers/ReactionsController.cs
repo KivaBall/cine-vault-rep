@@ -38,8 +38,6 @@ public sealed class ReactionsController(
     {
         logger.Information("Serilog | Getting reaction with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Проаналізувати, чи не додаєте ви зайвих Include у запитах
         var reaction = await dbContext.Reactions
             .AsNoTracking()
             .ProjectToType<ReactionResponse>()
@@ -60,9 +58,6 @@ public sealed class ReactionsController(
     public async Task<ActionResult<BaseResponse<int>>> CreateReactionV2(
         BaseRequest<ReactionRequest> request)
     {
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
-        // TODO 13 Оптимізуйте місця в коді, де виникають кілька запитів на отримання даних, об'єднавши їх у один запит
-        // TODO 13 Для часто виконуваних запитів створіть скомпільовані запити (CompileAsyncQuery)
         var data = await GetReactionCheck(dbContext, request.Data.ReviewId, request.Data.UserId);
 
         if (data == null)
@@ -137,7 +132,6 @@ public sealed class ReactionsController(
     {
         logger.Information("Serilog | Getting reaction with ID {Id}...", id);
 
-        // TODO 13 Визначити, де у вашому проєкті використовуються запити лише для читання даних, та додати AsNoTracking до них
         var reaction = await dbContext.Reactions.FindAsync(id);
 
         if (reaction == null)

@@ -1,6 +1,5 @@
 namespace CineVault.API.Controllers.Requests;
 
-// TODO 9 Додати такі нові методи в API
 public sealed class SearchMoviesRequest
 {
     public required string? SearchText { get; init; }

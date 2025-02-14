@@ -3,6 +3,7 @@ using Asp.Versioning;
 using CineVault.API.Entities;
 using CineVault.API.Middlewares;
 using Mapster;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -23,7 +24,6 @@ public static class ServicesExtensions
                 throw new InvalidOperationException("Connection string is not configured");
             }
 
-            // TODO 1 Налаштувати DbContext для роботи з базою даних
             options.UseSqlServer(connectionString);
         });
     }
@@ -110,5 +110,43 @@ public static class ServicesExtensions
     {
         services.AddMapster();
         TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
+    }
+
+    public static void AddCaching(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMemoryCache();
+
+        var connectionString = configuration.GetConnectionString("CineVaultDb");
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Connection string is not configured");
+        }
+
+        // TODO b) налаштувати Distributed Cache для використання SQL Server - (localdb)\MSSQLLocalDB
+        using var connection = new SqlConnection(connectionString);
+        connection.Open();
+        var command = connection.CreateCommand();
+        command.CommandText = """
+                              IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Cache]') AND type in (N'U'))
+                                  BEGIN
+                                  CREATE TABLE [dbo].[Cache](
+                                      [Id] nvarchar(449) NOT NULL,
+                                      [Value] varbinary(max) NOT NULL,
+                                      [ExpiresAtTime] datetimeoffset(7) NOT NULL,
+                                      [SlidingExpirationInSeconds] bigint NULL,
+                                      [AbsoluteExpiration] datetimeoffset(7) NULL,
+                                      CONSTRAINT [PK_Cache] PRIMARY KEY CLUSTERED ([Id] ASC)
+                                  );
+                              END
+                              """;
+        command.ExecuteNonQuery();
+
+        services.AddDistributedSqlServerCache(options =>
+        {
+            options.ConnectionString = connectionString;
+            options.SchemaName = "dbo";
+            options.TableName = "Cache";
+        });
     }
 }

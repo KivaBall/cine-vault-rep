@@ -1,6 +1,5 @@
 namespace CineVault.API.Controllers.Responses;
 
-// TODO 9 Додати такі нові методи в API
 public sealed class MovieDetails
 {
     public required int Id { get; init; }
